@@ -42,6 +42,55 @@ body {
     background-color: white;
     width: 100%;
     height: 100px;
+    position: relative;
+    margin-top: 20px;
+}
+.room:first-of-type {
+    margin-top: 0;
+}
+.room-name {
+    font-size: 20px;
+    margin: 0;
+    margin-left: 15px;
+    line-height: 2;
+}
+.room-light-status {
+    font-size: 15px;
+    margin: 0;
+    margin-left: 15px;
+    opacity: .5;
+}
+.light-switch {
+    border-radius: 100%;
+    border: none;
+    background-color: #FD1015;
+    height: 35px;
+    width: 35px;
+    transition: .1s;
+    position: absolute;
+    right: 15px;
+    top: 15px;
+}
+.light-switch.active {
+    background-color: #57DE72;
+}
+.light-switch::before {
+    content: '';
+    width: 5px;
+    height: 17.5px;
+    background-color: white;
+    border-radius: 3px;
+    position: absolute;
+    left: 15px;
+    top: 8.75px;
+    transition: .4s;
+}
+.light-switch.active::before {
+    width: 17.5px;
+    height: 17.5px;
+    border-radius: 100%;
+    left: 8.75px;
+    top: 8.75px;
 }
 
 #menu {
@@ -53,4 +102,25 @@ body {
     bottom: 2vw;
     position: fixed;
     z-index: 2;
+}
+.icons-wrapper {
+    padding: 20px 27px;
+    /* padding: 0; */
+    margin: 0;
+    list-style: none;
+    display: flex;
+}
+.icons-wrapper svg {
+    height: 30px;
+    width: auto;
+    color: #9C88FF;
+    /* fill: #9C88FF; */
+    margin-right: 34px;
+}
+.icons-wrapper svg:last-of-type {
+    margin-right: 0;
+}
+
+.space-between { 
+    justify-content: space-between; 
 }

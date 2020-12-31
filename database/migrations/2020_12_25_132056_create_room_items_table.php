@@ -20,6 +20,7 @@ class CreateRoomItemsTable extends Migration
             $table->string('url');
             $table->string('callout_id');
             $table->integer('room_id')->unsigned();
+            $table->integer('visible')->default('1');
             $table->timestamps();
         });
     }

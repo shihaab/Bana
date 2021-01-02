@@ -66,13 +66,16 @@ body {
     background-color: #FD1015;
     height: 35px;
     width: 35px;
-    transition: .1s;
+    transition: .1s ease-in-out;
     position: absolute;
     right: 15px;
     top: 15px;
 }
 .light-switch.active {
     background-color: #57DE72;
+}
+.light-switch.loading {
+    background-color: #222222;
 }
 .light-switch::before {
     content: '';
@@ -89,6 +92,13 @@ body {
     width: 17.5px;
     height: 17.5px;
     border-radius: 100%;
+    left: 8.75px;
+    top: 8.75px;
+}
+.light-switch.loading::before {
+    width: 17.5px;
+    height: 17.5px;
+    border-radius: 10%;
     left: 8.75px;
     top: 8.75px;
 }

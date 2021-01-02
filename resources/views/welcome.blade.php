@@ -60,7 +60,45 @@
             doData();
             getStatuses();
             
-            
+            function doSwitchRoom(id) {
+                let thisBtn = document.getElementById(id);
+                if(thisBtn.className.includes("active")) { // if is active
+                    thisBtn.classList.remove("active");
+                    thisBtn.classList.add("loading");
+                    thisBtn.removeAttribute("onClick");
+                    axiosCall("api/getroomitemsbyid/"+id).then(function(result) {
+                        Object.keys(result).forEach(function (key) { //foreach item in room
+                            // key = key
+                            // value = result[key]
+                            let itemData = result[key];
+                            let updateURL = itemData.url+'/'+itemData.callout_id+'?v='; //construct a update URL
+                            axiosGet(updateURL+1);
+                        });
+                    }).finally(() => {
+                        thisBtn.setAttribute("onClick", "doSwitchRoom("+id+")");
+                        thisBtn.classList.remove("active");
+                        thisBtn.classList.remove("loading");
+                    });
+                }
+                else {
+                    thisBtn.classList.add("loading");
+                    thisBtn.removeAttribute("onClick");
+                    axiosCall("api/getroomitemsbyid/"+id).then(function(result) {
+                        Object.keys(result).forEach(function (key) { //foreach item in room
+                            // key = key
+                            // value = result[key]
+                            let itemData = result[key];
+                            let updateURL = itemData.url+'/'+itemData.callout_id+'?v='; //construct a update URL
+                            axiosGet(updateURL+0);
+                        });
+                    }).finally(() => {
+                        thisBtn.setAttribute("onClick", "doSwitchRoom("+id+")");
+                        thisBtn.classList.remove("loading");
+                        thisBtn.classList.add("active");
+                    });
+                }
+                getStatuses();
+            }
             function doSwitch(url, btnId) {
                 let thisBtn = document.getElementById(btnId);
                 if(thisBtn.className.includes("active")) { // if is active
@@ -75,17 +113,7 @@
                 }
                 getStatuses();
             }
-            function doStatuses(statusArr) {
-                console.log(statusArr);
-                Object.keys(statusArr).forEach(function (key) {
-                    if(statusArr[key].includes("1")) { // if statuses includes an on state
-                        console.log("contains: 1");
-                    }
-                    else {
-                        console.log("if statement says no!");
-                    }
-                });
-            }
+            
             function getStatuses() {
                 var qStatus = [];
                 var roomId = [];
@@ -180,8 +208,6 @@
             }
 
             function createRoom(name, id) {
-                let n_url = "doSwitch('http://192.168.178.60:2390/led_3?v=', this.id)";
-
                 let content_rooms = document.getElementById('content-rooms');
 
                 let room = document.createElement("div");
@@ -196,7 +222,7 @@
                 let room_btn = document.createElement("button");
                 room_btn.setAttribute('class', "light-switch");
                 room_btn.setAttribute('id', id);
-                room_btn.setAttribute('onClick', n_url);
+                room_btn.setAttribute('onClick', "doSwitchRoom("+id+")");
 
                 // append to assigned elements
                 room.appendChild(room_title);

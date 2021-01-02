@@ -30,19 +30,16 @@
     <body class="antialiased">
         <div id="head">
             <h1 onclick="getStatuses()" class="title">Home</h1>
+            <div class="options"><span id="openOverlay" class="options-click"></span><svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"viewBox="0 0 32.055 32.055" xml:space="preserve"><g><path d="M3.968,12.061C1.775,12.061,0,13.835,0,16.027c0,2.192,1.773,3.967,3.968,3.967c2.189,0,3.966-1.772,3.966-3.967C7.934,13.835,6.157,12.061,3.968,12.061z M16.233,12.061c-2.188,0-3.968,1.773-3.968,3.965c0,2.192,1.778,3.967,3.968,3.967s3.97-1.772,3.97-3.967C20.201,13.835,18.423,12.061,16.233,12.061z M28.09,12.061c-2.192,0-3.969,1.774-3.969,3.967c0,2.19,1.774,3.965,3.969,3.965c2.188,0,3.965-1.772,3.965-3.965S30.278,12.061,28.09,12.061z"/></g></svg></div>
+            <div id="popup">
+                <span>Add room</span><br>
+                <hr>
+                <span>Edit</span>
+            </div>
+            <div id="backgroundOverlay"></div>
         </div>
         <div id="content">
             <div id="content-rooms"></div>
-            <!-- <div class="room">
-                <h1 class="room-name">Livingroom</h1>
-                <p class="room-light-status">All lights off</p>
-                <button class="light-switch" id="1" onclick="doSwitch('http://192.168.178.250:2390/led_1?v=', this.id)"></button>
-            </div>
-            <div class="room">
-                <h1 class="room-name">Bedroom</h1>
-                <p class="room-light-status">All lights off</p>
-                <button class="light-switch" id="2" onclick="doSwitch('http://192.168.178.250:2390/led_3?v=', this.id)"></button>
-            </div> -->
         </div>
         <div id="app"></div>
         <div id="menu">
@@ -59,7 +56,23 @@
         <script>
             doData();
             getStatuses();
-            
+
+            var popup = document.getElementById('popup');
+            var overlay = document.getElementById('backgroundOverlay');
+            var openButton = document.getElementById('openOverlay');
+            document.onclick = function(e){
+                console.log(e.target);
+                if(e.target.id == 'backgroundOverlay'){
+                    console.log('test1');
+                    popup.style.display = 'none';
+                    overlay.style.display = 'none';
+                }
+                if(e.target == openButton){
+                    console.log('test2');
+                    popup.style.display = 'block';
+                    overlay.style.display = 'block';
+                }
+            };
             function doSwitchRoom(id) {
                 let thisBtn = document.getElementById(id);
                 if(thisBtn.className.includes("active")) { // if is active
@@ -173,6 +186,12 @@
                 }
                 // get all the rooms and add them to the DOM
                 axiosCall("api/rooms").then(function(result) {
+                    if(result.length > 0) { //if there are any rooms
+                        createCat('rooms');
+                    }
+                    else {
+                        createNotFound(content_rooms, 'There are no rooms yet...', 'Add a new room here');
+                    }
                     Object.keys(result).forEach(function (key) {
                         // key = key
                         // value = result[key]
@@ -207,6 +226,21 @@
                 
             }
 
+            function createCat(categoryName) {
+                let content_rooms = document.getElementById('content-rooms');
+                let catgory = document.createElement("div");
+                switch(categoryName) {
+                    case 'rooms':
+                        catgory.setAttribute('class', "category category-"+categoryName);
+                        catgory.textContent = categoryName;
+                        content_rooms.appendChild(catgory);
+                        break;
+                    default:
+                        console.log("category "+categoryName+"not in switch statement");
+                        break;
+                }
+            }
+
             function createRoom(name, id) {
                 let content_rooms = document.getElementById('content-rooms');
 
@@ -229,6 +263,25 @@
                 room.appendChild(room_status);
                 room.appendChild(room_btn);
                 content_rooms.appendChild(room);
+            }
+
+            function createNotFound(element, title, content) {
+                let div = document.createElement("div");
+                div.setAttribute('class', "notfound");
+                let div_title = document.createElement("h1");
+                div_title.setAttribute('class', "notfound-title");
+                div_title.textContent = title;
+                let div_content = document.createElement("p");
+                div_content.setAttribute('class', "notfound-content");
+                div_content.textContent = content;
+                let div_image = document.createElement("img");
+                div_image.setAttribute('class', "notfound-image");
+                div_image.setAttribute('src', "/img/hand-min.png");
+
+                div.appendChild(div_title);
+                div.appendChild(div_content);
+                div.appendChild(div_image);
+                element.appendChild(div);
             }
         </script>
     </body>

@@ -27,6 +27,21 @@ body {
     font-size: 20px;
     text-transform: uppercase;
 }
+.options {
+    width: 33px;
+    height: 33px;
+    border-radius: 100%;
+    background-color: #9C88FF;
+    position: absolute;
+    right: 50px;
+    top: 8px;
+    text-align: center;
+}
+.options svg {
+    height: 20px;
+    margin-top: 6.5px;
+    fill: white;
+}
 
 #content {
     background-color: #222222;
@@ -36,6 +51,26 @@ body {
     top: 0;
     z-index: 1;
     padding: 66px 16px 0 16px;
+}
+.category {
+    font-size: 20px;
+    text-transform: uppercase;
+    color: white;
+    font-weight: 900;
+    position: relative;
+}
+.category::after {
+    position: absolute;
+    content: '';
+    height: 4px;
+    background-color: white;
+    opacity: .1;
+    top: 45%;
+    right: 0;
+    border-radius: 10px;
+}
+.category-rooms::after {
+    width: 75%;
 }
 .room {
     border-radius: 13px;
@@ -133,4 +168,72 @@ body {
 
 .space-between { 
     justify-content: space-between; 
+}
+#backgroundOverlay{
+    background-color:transparent;
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    display: none;
+}
+#popup{
+    background-color: #9C88FF;
+    width: auto;
+    height: auto;
+    position: absolute;
+    z-index: 500;
+    padding: 10px;
+    border-radius: 13px;
+    border-top-right-radius: 0;
+    text-transform: uppercase;
+    font-weight: 900;
+    color: white;
+    right: 83px;
+    top: 42px;
+    display: none;
+    font-size: 18px;
+}
+#popup hr {
+    margin: 4px 0;
+    opacity: .1;
+    height: 1px;
+    background-color: white;
+    border-radius: 10px;
+}
+#popup span {
+    background-color: rgba(145, 145, 145, 0);
+    border-radius: 13px;
+    padding: 2px 5px;
+    transition: .2s;
+}
+#popup span:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+.options-click {
+    width: 35px;
+    height: 35px;
+    position: absolute;
+    background-color: transparent;
+    left: -2px;
+    top: -2px;
+}
+.notfound {
+    color: white;
+    position: relative;
+}
+.notfound-title {
+    font-size: 8.5vw;
+    width: 60%;
+}
+.notfound-content {
+    font-size: 4.6vw;
+}
+.notfound-image {
+    position: absolute;
+    width: 229px;
+    transform: rotate(113deg);
+    right: -40px;
+    top: -60px;
 }

@@ -21,3 +21,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::get('/rooms', 'App\Http\Controllers\RoomController@GetAll');
 
 Route::get('/getroomitemsbyid/{id}', 'App\Http\Controllers\RoomController@GetItemsById');
+
+Route::get('/createroom/{name}', 'App\Http\Controllers\RoomController@CreateRoom');

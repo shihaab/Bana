@@ -32,7 +32,7 @@
             <h1 onclick="getStatuses()" class="title">Home</h1>
             <div class="options"><span id="openOverlay" class="options-click"></span><svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"viewBox="0 0 32.055 32.055" xml:space="preserve"><g><path d="M3.968,12.061C1.775,12.061,0,13.835,0,16.027c0,2.192,1.773,3.967,3.968,3.967c2.189,0,3.966-1.772,3.966-3.967C7.934,13.835,6.157,12.061,3.968,12.061z M16.233,12.061c-2.188,0-3.968,1.773-3.968,3.965c0,2.192,1.778,3.967,3.968,3.967s3.97-1.772,3.97-3.967C20.201,13.835,18.423,12.061,16.233,12.061z M28.09,12.061c-2.192,0-3.969,1.774-3.969,3.967c0,2.19,1.774,3.965,3.969,3.965c2.188,0,3.965-1.772,3.965-3.965S30.278,12.061,28.09,12.061z"/></g></svg></div>
             <div id="popup">
-                <span>Add room</span><br>
+                <span onclick="createForm('addRoom')">Add room</span><br>
                 <hr>
                 <span>Edit</span>
             </div>
@@ -54,25 +54,39 @@
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <!-- <script src="{{ mix('js/app.js') }}"></script> -->
         <script>
-            doData();
+            let int = 10000; // 10 seconds for repeat
+            fillScreen();
             getStatuses();
+            setInterval(function(){getStatuses()}, int); // repeat every 10 seconds
 
             var popup = document.getElementById('popup');
             var overlay = document.getElementById('backgroundOverlay');
             var openButton = document.getElementById('openOverlay');
             document.onclick = function(e){
-                console.log(e.target);
                 if(e.target.id == 'backgroundOverlay'){
-                    console.log('test1');
                     popup.style.display = 'none';
                     overlay.style.display = 'none';
                 }
                 if(e.target == openButton){
-                    console.log('test2');
                     popup.style.display = 'block';
                     overlay.style.display = 'block';
                 }
             };
+
+            var acc = document.getElementsByClassName("room-panel");
+            var i;
+            for (i = 0; i < acc.length; i++) {
+                acc[i].addEventListener("click", function() {
+                    this.classList.toggle("active");
+                    var panel = this.parentElement.nextElementSibling;
+                    if (panel.style.maxHeight) {
+                        panel.style.maxHeight = null;
+                    } else {
+                        panel.style.maxHeight = panel.scrollHeight + "px";
+                    }
+                });
+            }
+
             function doSwitchRoom(id) {
                 let thisBtn = document.getElementById(id);
                 if(thisBtn.className.includes("active")) { // if is active
@@ -110,21 +124,21 @@
                         thisBtn.classList.add("active");
                     });
                 }
-                getStatuses();
+                getStatusRoom(id);
             }
-            function doSwitch(url, btnId) {
-                let thisBtn = document.getElementById(btnId);
+            function doSwitch(url, btnId, roomId) {
+                let thisBtn = document.getElementById('item-btn-'+btnId);
                 if(thisBtn.className.includes("active")) { // if is active
-                    axiosGet(url+1);
+                    axiosGet(url+"?v=1");
                     // TODO: set class after the request is done and successfull
                     thisBtn.classList.remove("active");
                 }
                 else {
-                    axiosGet(url+0);
+                    axiosGet(url+"?v=0");
                     // TODO: set class after the request is done and successfull
                     thisBtn.classList.add("active");
                 }
-                getStatuses();
+                getStatusRoom(roomId);
             }
             
             function getStatuses() {
@@ -145,27 +159,61 @@
                                 let statusURL = itemData.url+'/'+itemData.callout_id+'_status'; //construct a status URL
                                 axiosCallCORS(statusURL).then(function(result) {
                                     statuses.push(result.s.toString());
+                                    updateStatusUI(result.s, itemData.id);
+                                }).catch(error => {
+                                    notify(error);
+                                    console.log('error', error);
                                 });
                             });
                         }).finally(() => {
                             qStatus.push(statuses);
                         });
                     });
-                    console.log(roomId);
                     setTimeout(function () {
                         Object.keys(qStatus).forEach(function (key) {
                             if(qStatus[key].includes("1")) { // if statuses includes an on state
-                                console.log("contains: 1 with ID: "+roomId[key]);
-                                updateStatusUI("on",roomId[key]);
+                                let count = qStatus[key].filter((v) => (v === '1')).length;
+                                updateStatusRoomUI("on",roomId[key], count);
                             }
                             else {
-                                console.log("if statement says no! with ID: "+roomId[key]);
-                                updateStatusUI("off",roomId[key]);
+                                updateStatusRoomUI("off",roomId[key], 0);
                             }
                         });
-                    }, 2000);
+                    }, 2000); // wait 2 seconds... the axios request is handled after the if statement is called so we have to do this fakka irritant
                 });
                 return qStatus;
+            }
+            function getStatusRoom(roomId) {
+                var statuses = new Array();
+                var qStatus = [];
+                axiosCall("api/getroomitemsbyid/"+roomId).then(function(result) {
+                    Object.keys(result).forEach(function (key) { //foreach item in room
+                        // key = key
+                        // value = result[key]
+                        let itemData = result[key];
+                        let statusURL = itemData.url+'/'+itemData.callout_id+'_status'; //construct a status URL
+                        axiosCallCORS(statusURL).then(function(result) {
+                            statuses.push(result.s.toString());
+                            updateStatusUI(result.s, itemData.id);
+                        }).catch(error => {
+                            notify(error);
+                            console.log('error', error);
+                        });
+                    });
+                }).finally(() => {
+                    qStatus.push(statuses);
+                });
+                setTimeout(function () {
+                    Object.keys(qStatus).forEach(function (key) {
+                        if(qStatus[key].includes("1")) { // if statuses includes an on state
+                            let count = qStatus[key].filter((v) => (v === '1')).length;
+                            updateStatusRoomUI("on",roomId, count);
+                        }
+                        else {
+                            updateStatusRoomUI("off",roomId, 0);
+                        }
+                    });
+                }, 1500); // wait 1.5 seconds... the axios request is handled after the if statement is called so we have to do this fakka irritant
             }
 
             function axiosGet(url) {
@@ -174,11 +222,12 @@
                 }).then(res => { 
                     console.log('state: '+res.data.s);
                 }).catch(error => {
+                    notify(error);
                     console.log('error', error);
                 })
             }
 
-            function doData() {
+            function fillScreen() {
                 // remove all the DOM elements in content_rooms
                 const content_rooms = document.getElementById('content-rooms');
                 while (content_rooms.firstChild) {
@@ -196,8 +245,31 @@
                         // key = key
                         // value = result[key]
                         let roomData = result[key];
-                        createRoom(roomData.name, roomData.id);
+                        let roomEl = createRoom(roomData.name, roomData.id);
+                        axiosCall("api/getroomitemsbyid/"+roomData.id).then(function(result) {
+                            Object.keys(result).forEach(function (key) { //foreach item in room
+                                // key = key
+                                // value = result[key]
+                                let itemData = result[key];
+                                createItem(itemData.id, itemData.name, itemData.url, itemData.callout_id, itemData.room_id, roomEl);
+                            });
+                        });
                     });
+                }).finally(() => {
+                    var acc = document.getElementsByClassName("room-panel");
+                    var i;
+
+                    for (i = 0; i < acc.length; i++) {
+                    acc[i].addEventListener("click", function() {
+                    this.classList.toggle("active");
+                    var panel = this.parentElement.nextElementSibling;
+                    if (panel.style.maxHeight) {
+                    panel.style.maxHeight = null;
+                    } else {
+                    panel.style.maxHeight = panel.scrollHeight + "px";
+                    }
+                    });
+                    }
                 });
             }
 
@@ -211,17 +283,31 @@
                 return response.data
             }
 
-            function updateStatusUI(status, id) {
+            function updateStatusRoomUI(status, id, count) {
                 let statusEl = document.getElementById('room-'+id+'-status');
                 let statusBtnEl = document.getElementById(id);
                 if(status == 'on') {
-                    statusEl.textContent = "All lights are on";
+                    if(count<2){
+                        statusEl.textContent = count+" light is on";
+                    }
+                    else {
+                        statusEl.textContent = count+" lights are on";
+                    }
                     statusBtnEl.classList.add("active");
                 } else if(status == 'off') {
                     statusEl.textContent = "All lights are off";
                     statusBtnEl.classList.remove("active");
                 } else if(true) {
                     statusEl.textContent = "idk";
+                }
+                
+            }
+            function updateStatusUI(status, id) {
+                let statusBtnEl = document.getElementById("item-btn-"+id);
+                if(status == 1) {
+                    statusBtnEl.classList.add("active");
+                } else if(status == 0) {
+                    statusBtnEl.classList.remove("active");
                 }
                 
             }
@@ -246,6 +332,8 @@
 
                 let room = document.createElement("div");
                 room.setAttribute('class', "room");
+                let room_panel = document.createElement("div");
+                room_panel.setAttribute('class', "room-panel");
                 let room_title = document.createElement("h1");
                 room_title.setAttribute('class', "room-name");
                 room_title.textContent = name;
@@ -258,11 +346,38 @@
                 room_btn.setAttribute('id', id);
                 room_btn.setAttribute('onClick', "doSwitchRoom("+id+")");
 
+                let room_items = document.createElement("div");
+                room_items.setAttribute('class', "room-items");
+                room_items.setAttribute('id', "room-items-"+id);
+
                 // append to assigned elements
+                room.appendChild(room_panel);
                 room.appendChild(room_title);
                 room.appendChild(room_status);
                 room.appendChild(room_btn);
                 content_rooms.appendChild(room);
+                content_rooms.appendChild(room_items);
+
+                return room;
+            }
+            function createItem(id, name, url, callout, roomId, roomElement) {
+                let room_items = document.getElementById('room-items-'+roomId);
+                let options = '<div class="options-item"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"viewBox="0 0 32.055 32.055" xml:space="preserve"><g><path d="M3.968,12.061C1.775,12.061,0,13.835,0,16.027c0,2.192,1.773,3.967,3.968,3.967c2.189,0,3.966-1.772,3.966-3.967C7.934,13.835,6.157,12.061,3.968,12.061z M16.233,12.061c-2.188,0-3.968,1.773-3.968,3.965c0,2.192,1.778,3.967,3.968,3.967s3.97-1.772,3.97-3.967C20.201,13.835,18.423,12.061,16.233,12.061z M28.09,12.061c-2.192,0-3.969,1.774-3.969,3.967c0,2.19,1.774,3.965,3.969,3.965c2.188,0,3.965-1.772,3.965-3.965S30.278,12.061,28.09,12.061z"/></g></svg></div>'
+
+                let item = document.createElement("div");
+                item.setAttribute('class', "item");
+                let item_title = document.createElement("h1");
+                item_title.setAttribute('class', "item-name");
+                item_title.textContent = name;
+                let item_btn = document.createElement("button");
+                item_btn.setAttribute('class', "light-switch-item");
+                item_btn.setAttribute('id', 'item-btn-'+id);
+                item_btn.setAttribute('onClick', "doSwitch('"+url+"/"+callout+"',"+id+","+roomId+")");
+
+                item.appendChild(item_title);
+                item.appendChild(item_btn);
+                item.insertAdjacentHTML( 'beforeend', options );
+                room_items.appendChild(item);
             }
 
             function createNotFound(element, title, content) {
@@ -282,6 +397,74 @@
                 div.appendChild(div_content);
                 div.appendChild(div_image);
                 element.appendChild(div);
+            }
+
+            function createForm(type, origin) {
+                switch(type) {
+                    case 'addRoom':
+                        let form = document.createElement("div");
+                        form.setAttribute('class', "form");
+                        let label = document.createElement("label");
+                        label.textContent = "Room name";
+                        let input = document.createElement("input");
+                        input.setAttribute('id', "name");
+                        input.setAttribute('type', "text");
+                        input.setAttribute('focus', "text");
+                        input.setAttribute('placeholder', "Livingroom");
+                        let button1 = document.createElement("button");
+                        button1.textContent = "Cancel";
+                        button1.setAttribute('onclick', "closeForm(this)");
+                        let button2 = document.createElement("button");
+                        button2.setAttribute('onclick', "formSend(this)");
+                        button2.textContent = "Add";
+                        form.appendChild(label);
+                        form.appendChild(input);
+                        form.appendChild(button1);
+                        form.appendChild(button2);
+                        document.body.appendChild(form);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            function closeForm(element) {
+                element.parentNode.parentNode.removeChild(element.parentNode);
+            }
+            function formSend(element) {
+                let form = element.parentElement;
+                let name = findSiblingWithId(element).value;
+                axiosCall('/api/createroom/'+name);
+                element.parentNode.parentNode.removeChild(element.parentNode);
+                fillScreen();
+            }
+            function findSiblingWithId(element) {
+                var siblings = element.parentNode.children,
+                sibWithId = 'name';
+                for(var i = siblings.length; i--;) {
+                    if(siblings[i].id) {
+                        sibWithId = siblings[i];
+                        break;
+                    }
+                }
+
+                if(sibWithId) {
+                    return sibWithId;
+                }
+            }
+
+            function notify(text) {
+                let notification = document.createElement("div");
+                notification.setAttribute('class', "notification");
+                let notification_text = document.createElement("div");
+                notification_text.setAttribute('class', "notification-text");
+                notification_text.textContent = text;
+
+                notification.appendChild(notification_text);
+                document.body.appendChild(notification);
+
+                setTimeout(function () {
+                    document.body.removeChild(notification);
+                }, 3000);
             }
         </script>
     </body>

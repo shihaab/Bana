@@ -54,10 +54,10 @@
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <!-- <script src="{{ mix('js/app.js') }}"></script> -->
         <script>
-            let int = 10000; // 10 seconds for repeat
+            let int = 5000; // 5 seconds for repeat
             fillScreen();
             getStatuses();
-            setInterval(function(){getStatuses()}, int); // repeat every 10 seconds
+            setInterval(function(){getStatuses()}, int); // repeat every x seconds
 
             // handle for the options popup
             var popup = document.getElementById('popup');
@@ -176,30 +176,35 @@
                         roomId.push(roomData.id);
                         axiosCall("api/getroomitemsbyid/"+roomData.id).then(function(result) {
                             $: lengthArr = result.length;
-                            Object.keys(result).forEach(function (key) { //foreach item in room
-                                // key = key
-                                // value = result[key]
-                                let itemData = result[key];
-                                let statusURL = itemData.url+'/'+itemData.callout_id+'_status'; //construct a status URL
-                                axiosCallCORS(statusURL).then(function(result) {
-                                    statuses.push(result.s.toString());
-                                    updateStatusUI(result.s, itemData.id);
-                                    if(lengthArr == statuses.length) {
-                                        Object.keys(qStatus).forEach(function (key) {
-                                            if(qStatus[key].includes("1")) { // if statuses includes an on state
-                                                let count = qStatus[key].filter((v) => (v === '1')).length;
-                                                updateStatusRoomUI("on",roomId[key], count);
-                                            }
-                                            else {
-                                                updateStatusRoomUI("off",roomId[key], 0);
-                                            }
-                                        });
-                                    }
-                                }).catch(error => {
-                                    notify(error);
-                                    console.log('error', error);
+                            if(lengthArr == 0) { // if there are no lights in the room
+                                updateStatusRoomUI("none",roomData.id, 0);
+                            }
+                            else {
+                                Object.keys(result).forEach(function (key) { //foreach item in room
+                                    // key = key
+                                    // value = result[key]
+                                    let itemData = result[key];
+                                    let statusURL = itemData.url+'/'+itemData.callout_id+'_status'; //construct a status URL
+                                    axiosCallCORS(statusURL).then(function(result) {
+                                        statuses.push(result.s.toString());
+                                        updateStatusUI(result.s, itemData.id);
+                                        if(lengthArr == statuses.length) {
+                                            Object.keys(qStatus).forEach(function (key) {
+                                                if(qStatus[key].includes("1")) { // if statuses includes an on state
+                                                    let count = qStatus[key].filter((v) => (v === '1')).length;
+                                                    updateStatusRoomUI("on",roomId[key], count);
+                                                }
+                                                else {
+                                                    updateStatusRoomUI("off",roomId[key], 0);
+                                                }
+                                            });
+                                        }
+                                    }).catch(error => {
+                                        notify(error);
+                                        console.log('error', error);
+                                    });
                                 });
-                            });
+                            }
                         }).finally(() => {
                             qStatus.push(statuses);
                         });
@@ -325,8 +330,8 @@
                 } else if(status == 'off') {
                     statusEl.textContent = "All lights are off";
                     statusBtnEl.classList.remove("active");
-                } else if(true) {
-                    statusEl.textContent = "idk";
+                } else if(status == 'none') {
+                    statusEl.textContent = "There are no lights in this room";
                 }
                 
             }

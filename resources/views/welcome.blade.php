@@ -101,7 +101,14 @@
                             // value = result[key]
                             let itemData = result[key];
                             let updateURL = itemData.url+'/'+itemData.callout_id+'?v='; //construct a update URL
-                            axiosGet(updateURL+1);
+                            let thisBtn = document.getElementById('item-btn-'+itemData.id);
+                            thisBtn.classList.add("loading");
+                            axiosCallCORS(updateURL+1).then(function(result) {
+                                if(result.s == '200') {
+                                    thisBtn.classList.remove("loading");
+                                    thisBtn.classList.remove("active");
+                                }
+                            });
                         });
                     }).finally(() => {
                         thisBtn.setAttribute("onClick", "doSwitchRoom("+id+")");
@@ -109,7 +116,7 @@
                         thisBtn.classList.remove("loading");
                     });
                 }
-                else {
+                else { // if is not active
                     thisBtn.classList.add("loading");
                     thisBtn.removeAttribute("onClick");
                     axiosCall("api/getroomitemsbyid/"+id).then(function(result) {
@@ -118,7 +125,14 @@
                             // value = result[key]
                             let itemData = result[key];
                             let updateURL = itemData.url+'/'+itemData.callout_id+'?v='; //construct a update URL
-                            axiosGet(updateURL+0);
+                            let thisBtn = document.getElementById('item-btn-'+itemData.id);
+                            thisBtn.classList.add("loading");
+                            axiosCallCORS(updateURL+0).then(function(result) {
+                                if(result.s == '200') {
+                                    thisBtn.classList.remove("loading");
+                                    thisBtn.classList.add("active");
+                                }
+                            });
                         });
                     }).finally(() => {
                         thisBtn.setAttribute("onClick", "doSwitchRoom("+id+")");
@@ -130,15 +144,22 @@
             }
             function doSwitch(url, btnId, roomId) {
                 let thisBtn = document.getElementById('item-btn-'+btnId);
+                thisBtn.classList.add("loading");
                 if(thisBtn.className.includes("active")) { // if is active
-                    axiosGet(url+"?v=1");
-                    // TODO: set class after the request is done and successfull
-                    thisBtn.classList.remove("active");
+                    axiosCallCORS(url+"?v=1").then(function(result) {
+                        if(result.s == '200') {
+                            thisBtn.classList.remove("loading");
+                            thisBtn.classList.remove("active");
+                        }
+                    });
                 }
                 else {
-                    axiosGet(url+"?v=0");
-                    // TODO: set class after the request is done and successfull
-                    thisBtn.classList.add("active");
+                    axiosCallCORS(url+"?v=0").then(function(result) {
+                        if(result.s == '200') {
+                            thisBtn.classList.remove("loading");
+                            thisBtn.classList.add("active");
+                        }
+                    });
                 }
                 getStatusRoom(roomId);
             }
@@ -154,6 +175,7 @@
                         let roomData = result[key];
                         roomId.push(roomData.id);
                         axiosCall("api/getroomitemsbyid/"+roomData.id).then(function(result) {
+                            $: lengthArr = result.length;
                             Object.keys(result).forEach(function (key) { //foreach item in room
                                 // key = key
                                 // value = result[key]
@@ -162,6 +184,17 @@
                                 axiosCallCORS(statusURL).then(function(result) {
                                     statuses.push(result.s.toString());
                                     updateStatusUI(result.s, itemData.id);
+                                    if(lengthArr == statuses.length) {
+                                        Object.keys(qStatus).forEach(function (key) {
+                                            if(qStatus[key].includes("1")) { // if statuses includes an on state
+                                                let count = qStatus[key].filter((v) => (v === '1')).length;
+                                                updateStatusRoomUI("on",roomId[key], count);
+                                            }
+                                            else {
+                                                updateStatusRoomUI("off",roomId[key], 0);
+                                            }
+                                        });
+                                    }
                                 }).catch(error => {
                                     notify(error);
                                     console.log('error', error);
@@ -171,17 +204,6 @@
                             qStatus.push(statuses);
                         });
                     });
-                    setTimeout(function () {
-                        Object.keys(qStatus).forEach(function (key) {
-                            if(qStatus[key].includes("1")) { // if statuses includes an on state
-                                let count = qStatus[key].filter((v) => (v === '1')).length;
-                                updateStatusRoomUI("on",roomId[key], count);
-                            }
-                            else {
-                                updateStatusRoomUI("off",roomId[key], 0);
-                            }
-                        });
-                    }, 2000); // wait 2 seconds... the axios request is handled after the if statement is called so we have to do this fakka irritant
                 });
                 return qStatus;
             }
@@ -189,6 +211,7 @@
                 var statuses = new Array();
                 var qStatus = [];
                 axiosCall("api/getroomitemsbyid/"+roomId).then(function(result) {
+                    $: lengthArr = result.length;
                     Object.keys(result).forEach(function (key) { //foreach item in room
                         // key = key
                         // value = result[key]
@@ -197,6 +220,17 @@
                         axiosCallCORS(statusURL).then(function(result) {
                             statuses.push(result.s.toString());
                             updateStatusUI(result.s, itemData.id);
+                            if(lengthArr == statuses.length) {
+                                Object.keys(qStatus).forEach(function (key) {
+                                if(qStatus[key].includes("1")) { // if statuses includes an on state
+                                    let count = qStatus[key].filter((v) => (v === '1')).length;
+                                    updateStatusRoomUI("on",roomId, count);
+                                }
+                                else {
+                                    updateStatusRoomUI("off",roomId, 0);
+                                }
+                            });
+                            }
                         }).catch(error => {
                             notify(error);
                             console.log('error', error);
@@ -205,17 +239,6 @@
                 }).finally(() => {
                     qStatus.push(statuses);
                 });
-                setTimeout(function () {
-                    Object.keys(qStatus).forEach(function (key) {
-                        if(qStatus[key].includes("1")) { // if statuses includes an on state
-                            let count = qStatus[key].filter((v) => (v === '1')).length;
-                            updateStatusRoomUI("on",roomId, count);
-                        }
-                        else {
-                            updateStatusRoomUI("off",roomId, 0);
-                        }
-                    });
-                }, 1500); // wait 1.5 seconds... the axios request is handled after the if statement is called so we have to do this fakka irritant
             }
 
             function axiosGet(url) {

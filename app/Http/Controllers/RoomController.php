@@ -16,11 +16,15 @@ class RoomController extends Controller
         return DB::table('room_items')->where('room_id', $id)->get();
     }
 
-    public function CreateRoom($name)
-    {
+    public function CreateRoom($name) {
         DB::table('rooms')->insert([
             'name' => $name,
         ]);
+        return 'success';
+    }
+
+    public function DeleteRoom($id) {
+        DB::table('rooms')->where('id', $id)->delete();
         return 'success';
     }
 }

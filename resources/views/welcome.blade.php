@@ -32,9 +32,9 @@
             <h1 onclick="getStatuses()" class="title">Home</h1>
             <div class="options"><span id="openOverlay" class="options-click"></span><svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"viewBox="0 0 32.055 32.055" xml:space="preserve"><g><path d="M3.968,12.061C1.775,12.061,0,13.835,0,16.027c0,2.192,1.773,3.967,3.968,3.967c2.189,0,3.966-1.772,3.966-3.967C7.934,13.835,6.157,12.061,3.968,12.061z M16.233,12.061c-2.188,0-3.968,1.773-3.968,3.965c0,2.192,1.778,3.967,3.968,3.967s3.97-1.772,3.97-3.967C20.201,13.835,18.423,12.061,16.233,12.061z M28.09,12.061c-2.192,0-3.969,1.774-3.969,3.967c0,2.19,1.774,3.965,3.969,3.965c2.188,0,3.965-1.772,3.965-3.965S30.278,12.061,28.09,12.061z"/></g></svg></div>
             <div id="popup">
-                <span onclick="createForm('addRoom')">Add room</span><br>
+                <span onclick="handleOption('addRoom')">Add room</span><br>
                 <hr>
-                <span>Edit</span>
+                <span onclick="handleOption('editRooms')">Edit</span>
             </div>
             <div id="backgroundOverlay"></div>
         </div>
@@ -59,6 +59,7 @@
             getStatuses();
             setInterval(function(){getStatuses()}, int); // repeat every 10 seconds
 
+            // handle for the options popup
             var popup = document.getElementById('popup');
             var overlay = document.getElementById('backgroundOverlay');
             var openButton = document.getElementById('openOverlay');
@@ -73,10 +74,11 @@
                 }
             };
 
-            var acc = document.getElementsByClassName("room-panel");
+            // handle for the accordion for all the room items
+            var room_items = document.getElementsByClassName("room-panel");
             var i;
-            for (i = 0; i < acc.length; i++) {
-                acc[i].addEventListener("click", function() {
+            for (i = 0; i < room_items.length; i++) {
+                room_items[i].addEventListener("click", function() {
                     this.classList.toggle("active");
                     var panel = this.parentElement.nextElementSibling;
                     if (panel.style.maxHeight) {
@@ -285,6 +287,9 @@
 
             function updateStatusRoomUI(status, id, count) {
                 let statusEl = document.getElementById('room-'+id+'-status');
+                if(statusEl == null) {// this means that there is a room in the database but not on the screen so we need to refill it
+                    fillScreen();
+                }
                 let statusBtnEl = document.getElementById(id);
                 if(status == 'on') {
                     if(count<2){
@@ -334,13 +339,16 @@
                 room.setAttribute('class', "room");
                 let room_panel = document.createElement("div");
                 room_panel.setAttribute('class', "room-panel");
+                let room_delete = document.createElement("div");
+                room_delete.setAttribute('class', "room-delete hide");
+                room_delete.setAttribute('onClick', "deleteRoom("+id+")");
                 let room_title = document.createElement("h1");
                 room_title.setAttribute('class', "room-name");
                 room_title.textContent = name;
                 let room_status = document.createElement("p");
                 room_status.setAttribute('class', "room-light-status");
                 room_status.setAttribute('id', "room-"+id+"-status");
-                room_status.textContent = "%lights_status%";
+                // room_status.textContent = "%lights_status%";
                 let room_btn = document.createElement("button");
                 room_btn.setAttribute('class', "light-switch");
                 room_btn.setAttribute('id', id);
@@ -352,6 +360,7 @@
 
                 // append to assigned elements
                 room.appendChild(room_panel);
+                room.appendChild(room_delete);
                 room.appendChild(room_title);
                 room.appendChild(room_status);
                 room.appendChild(room_btn);
@@ -399,7 +408,7 @@
                 element.appendChild(div);
             }
 
-            function createForm(type, origin) {
+            function handleOption(type, origin) {
                 switch(type) {
                     case 'addRoom':
                         let form = document.createElement("div");
@@ -423,8 +432,32 @@
                         form.appendChild(button2);
                         document.body.appendChild(form);
                         break;
+                    case 'editRooms':
+                        $: rooms = document.getElementsByClassName('room');
+                        $: room_deletes = document.getElementsByClassName('room-delete');
+                        for(var i = rooms.length; i--;) {
+                            rooms[i].classList.add("edit");
+                            room_deletes[i].classList.remove("hide");
+                        }
+                        break;
+                    case 'editRoomsDone':
+                        for(var i = rooms.length; i--;) {
+                            rooms[i].classList.remove("edit");
+                            room_deletes[i].classList.add("hide");
+                        }
+                        break;
                     default:
                         break;
+                }
+            }
+            function deleteRoom(id) {
+                if (confirm('Are you sure you want to delete this room?')) {
+                    axiosCall('/api/deleteroom/'+id);
+                    handleOption('editRoomsDone');
+                    fillScreen();
+                }
+                else {
+                    handleOption('editRoomsDone');
                 }
             }
             function closeForm(element) {

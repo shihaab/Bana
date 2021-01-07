@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="414" height="896" viewBox="0 0 414 896">
+  <defs>
+    <style>
+      .cls-1 {
+        clip-path: url(#clip-Launch);
+      }
+
+      .cls-2, .cls-3 {
+        fill: #fff;
+      }
+
+      .cls-3 {
+        font-size: 12px;
+        font-family: OCRAExtended, OCR A;
+      }
+
+      .cls-4 {
+        fill: #222;
+      }
+    </style>
+    <clipPath id="clip-Launch">
+      <rect width="414" height="896"/>
+    </clipPath>
+  </defs>
+  <g id="Launch" class="cls-1">
+    <rect class="cls-4" width="414" height="896"/>
+    <g id="Group_1" data-name="Group 1" transform="translate(75.086 320.828)">
+      <path id="Path_3" data-name="Path 3" class="cls-2" d="M45.214,26.315A24.55,24.55,0,0,1,37.56,43.938,30.365,30.365,0,0,1,49.98,68.5,30.018,30.018,0,0,1,19.937,98.541H0V2.192H21.091A24.169,24.169,0,0,1,45.214,26.315ZM21.091,38.305a12.085,12.085,0,0,0,12.134-11.99A12.207,12.207,0,0,0,21.091,14.182H12.133V38.305ZM12.133,86.551h7.8a18.128,18.128,0,0,0,0-36.256h-7.8Z" transform="translate(0 -1.038)"/>
+      <path id="Path_4" data-name="Path 4" class="cls-2" d="M149.291,97.5H137.157V27.591C137.157,9.819,147.993,0,161.28,0S185.4,9.819,185.4,27.591V97.5H173.27V61.247H149.291ZM173.27,27.591c0-10.548-5.346-15.6-11.99-15.6s-11.989,5.053-11.989,15.6V49.257H173.27Z" transform="translate(-64.931 0)"/>
+      <path id="Path_5" data-name="Path 5" class="cls-2" d="M311.725,2.192H322.56V98.541H313.6L285.15,34.693V98.541H274.314V2.192h8.958L311.725,66.04Z" transform="translate(-129.862 -1.038)"/>
+      <path id="Path_6" data-name="Path 6" class="cls-2" d="M423.615,97.5H411.482V27.591C411.482,9.819,422.318,0,435.605,0s24.123,9.819,24.123,27.591V97.5H447.6V61.247h-23.98ZM447.6,27.591c0-10.548-5.346-15.6-11.99-15.6s-11.99,5.053-11.99,15.6V49.257H447.6Z" transform="translate(-194.799 0)"/>
+    </g>
+    <path id="Icon_material-lightbulb-outline" data-name="Icon material-lightbulb-outline" class="cls-2" d="M25.094,86.571a4.411,4.411,0,0,0,4.4,4.4H47.086a4.411,4.411,0,0,0,4.4-4.4v-4.4H25.094ZM38.289,3A30.776,30.776,0,0,0,20.7,59.036v9.941a4.411,4.411,0,0,0,4.4,4.4H51.485a4.411,4.411,0,0,0,4.4-4.4V59.036A30.776,30.776,0,0,0,38.289,3ZM50.825,51.823l-3.739,2.639V64.579H29.492V54.462l-3.739-2.639a21.992,21.992,0,1,1,25.071,0Z" transform="translate(168.5 496.031)"/>
+    <text id="V0.01" class="cls-3" transform="translate(322 438)"><tspan x="0" y="0">V0.01</tspan></text>
+  </g>
+</svg>

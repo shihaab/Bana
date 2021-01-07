@@ -1,10 +1,28 @@
-<?php header('Access-Control-Allow-Origin: *'); ?>
+<?php
+header('Access-Control-Allow-Origin: *'); 
+//whether ip is from share internet
+if (!empty($_SERVER['HTTP_CLIENT_IP']))   
+  {
+    $ip_address = $_SERVER['HTTP_CLIENT_IP'];
+  }
+//whether ip is from proxy
+elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR']))  
+  {
+    $ip_address = $_SERVER['HTTP_X_FORWARDED_FOR'];
+  }
+//whether ip is from remote address
+else
+  {
+    $ip_address = $_SERVER['REMOTE_ADDR'];
+  }
+?>
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="apple-touch-icon" href="img/bana.png">
         <link rel="apple-touch-startup-image" href="launch.png">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
         <meta name="apple-mobile-web-app-title" content="Bana">
@@ -29,8 +47,9 @@
     </head>
     <body ontouchstart="" class="antialiased">
         <div id="head">
-            <h1 onclick="getStatuses()" class="title">Home</h1>
+            <h1 onclick="getStatuses()" class="title">Home <span style="color:white;font-family:monospace;font-size:10px;"><?php echo $ip_address; ?></span></h1>
             <div class="options"><span id="openOverlay" class="options-click"></span><svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"viewBox="0 0 32.055 32.055" xml:space="preserve"><g><path d="M3.968,12.061C1.775,12.061,0,13.835,0,16.027c0,2.192,1.773,3.967,3.968,3.967c2.189,0,3.966-1.772,3.966-3.967C7.934,13.835,6.157,12.061,3.968,12.061z M16.233,12.061c-2.188,0-3.968,1.773-3.968,3.965c0,2.192,1.778,3.967,3.968,3.967s3.97-1.772,3.97-3.967C20.201,13.835,18.423,12.061,16.233,12.061z M28.09,12.061c-2.192,0-3.969,1.774-3.969,3.967c0,2.19,1.774,3.965,3.969,3.965c2.188,0,3.965-1.772,3.965-3.965S30.278,12.061,28.09,12.061z"/></g></svg></div>
+            <div id="done-btn" class="hide" onclick="handleOption('editRoomsDone')">done</div>
             <div id="popup">
                 <span onclick="handleOption('addRoom')">Add room</span><br>
                 <hr>
@@ -57,6 +76,7 @@
             let int = 5000; // 5 seconds for repeat
             fillScreen();
             getStatuses();
+            console.log('<?php echo $ip_address; ?>')
             setInterval(function(){getStatuses()}, int); // repeat every x seconds
 
             // handle for the options popup
@@ -83,8 +103,10 @@
                     var panel = this.parentElement.nextElementSibling;
                     if (panel.style.maxHeight) {
                         panel.style.maxHeight = null;
+                        panel.style.paddingTop = '0';
                     } else {
                         panel.style.maxHeight = panel.scrollHeight + "px";
+                        panel.style.paddingTop = "15px";
                     }
                 });
             }
@@ -281,7 +303,7 @@
                                 // key = key
                                 // value = result[key]
                                 let itemData = result[key];
-                                createItem(itemData.id, itemData.name, itemData.url, itemData.callout_id, itemData.room_id, roomEl);
+                                createItem(itemData.id, itemData.name, itemData.type, itemData.url, itemData.callout_id, itemData.room_id, roomEl);
                             });
                         });
                     });
@@ -365,6 +387,7 @@
 
                 let room = document.createElement("div");
                 room.setAttribute('class', "room");
+                room.setAttribute('id', "room-"+id);
                 let room_panel = document.createElement("div");
                 room_panel.setAttribute('class', "room-panel");
                 let room_delete = document.createElement("div");
@@ -397,7 +420,7 @@
 
                 return room;
             }
-            function createItem(id, name, url, callout, roomId, roomElement) {
+            function createItem(id, name, type, url, callout, roomId, roomElement) {
                 let room_items = document.getElementById('room-items-'+roomId);
                 let options = '<div class="options-item"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"viewBox="0 0 32.055 32.055" xml:space="preserve"><g><path d="M3.968,12.061C1.775,12.061,0,13.835,0,16.027c0,2.192,1.773,3.967,3.968,3.967c2.189,0,3.966-1.772,3.966-3.967C7.934,13.835,6.157,12.061,3.968,12.061z M16.233,12.061c-2.188,0-3.968,1.773-3.968,3.965c0,2.192,1.778,3.967,3.968,3.967s3.97-1.772,3.97-3.967C20.201,13.835,18.423,12.061,16.233,12.061z M28.09,12.061c-2.192,0-3.969,1.774-3.969,3.967c0,2.19,1.774,3.965,3.969,3.965c2.188,0,3.965-1.772,3.965-3.965S30.278,12.061,28.09,12.061z"/></g></svg></div>'
 
@@ -406,12 +429,16 @@
                 let item_title = document.createElement("h1");
                 item_title.setAttribute('class', "item-name");
                 item_title.textContent = name;
+                let item_type = document.createElement("p");
+                item_type.setAttribute('class', "item-type");
+                item_type.textContent = type;
                 let item_btn = document.createElement("button");
                 item_btn.setAttribute('class', "light-switch-item");
                 item_btn.setAttribute('id', 'item-btn-'+id);
                 item_btn.setAttribute('onClick', "doSwitch('"+url+"/"+callout+"',"+id+","+roomId+")");
 
                 item.appendChild(item_title);
+                item.appendChild(item_type);
                 item.appendChild(item_btn);
                 item.insertAdjacentHTML( 'beforeend', options );
                 room_items.appendChild(item);
@@ -461,16 +488,22 @@
                         document.body.appendChild(form);
                         break;
                     case 'editRooms':
+                        $: done_btn = document.getElementById('done-btn');
                         $: rooms = document.getElementsByClassName('room');
+                        $: room_items = document.getElementsByClassName('room-items');
                         $: room_deletes = document.getElementsByClassName('room-delete');
+                        done_btn.classList.remove("hide");
                         for(var i = rooms.length; i--;) {
                             rooms[i].classList.add("edit");
+                            room_items[i].classList.add("edit");
                             room_deletes[i].classList.remove("hide");
                         }
                         break;
                     case 'editRoomsDone':
+                        done_btn.classList.add("hide");
                         for(var i = rooms.length; i--;) {
                             rooms[i].classList.remove("edit");
+                            room_items[i].classList.remove("edit");
                             room_deletes[i].classList.add("hide");
                         }
                         break;
@@ -481,12 +514,17 @@
             function deleteRoom(id) {
                 if (confirm('Are you sure you want to delete this room?')) {
                     axiosCall('/api/deleteroom/'+id);
-                    handleOption('editRoomsDone');
-                    fillScreen();
+                    //handleOption('editRoomsDone');
+                    removeFromScreen(document.getElementById('room-'+id));
+                    removeFromScreen(document.getElementById('room-items-'+id));
+                    //fillScreen();
                 }
                 else {
                     handleOption('editRoomsDone');
                 }
+            }
+            function removeFromScreen(element) {
+                element.remove();
             }
             function closeForm(element) {
                 element.parentNode.parentNode.removeChild(element.parentNode);

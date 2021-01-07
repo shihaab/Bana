@@ -49,13 +49,31 @@ body {
     background-color: #9C88FF;
     position: absolute;
     right: 60px;
-    bottom: 15px;
+    bottom: 17.5px;
     text-align: center;
 }
 .options-item svg {
     height: 20px;
     margin-top: 7.5px;
     fill: white;
+}
+#done-btn {
+    width: 51px;
+    height: 33px;
+    border-radius: 16px;
+    background-color: #9C88FF;
+    position: absolute;
+    right: 50px;
+    top: 8px;
+    text-align: center;
+    color: white;
+    font-family: 'nunito';
+    font-weight: 600;
+    line-height: 2;
+    padding: 0 5px;
+}
+#done-btn.hide {
+    display: none;
 }
 
 #content {
@@ -97,12 +115,20 @@ body {
     position: relative;
     margin-top: 20px;
     transition: .3s;
+    box-shadow: 0 2px 6px 1px #0000001f;
 }
 .room:first-of-type {
     margin-top: 0;
 }
 .room.edit {
     margin-left:35px;
+    animation: shake 2s;
+    animation-iteration-count: infinite;
+}
+.room-items.edit {
+    margin-left:35px;
+    animation: shake 2s;
+    animation-iteration-count: infinite;
 }
 .room-delete {
     border-radius: 100%;
@@ -166,7 +192,7 @@ body {
     transition: .1s ease-in-out;
     position: absolute;
     right: 15px;
-    bottom: 15px;
+    bottom: 17.5px;
 }
 .light-switch.active,.light-switch-item.active {
     background-color: #57DE72;
@@ -212,16 +238,29 @@ body {
     overflow: hidden;
     transition: max-height 0.2s ease-out;
     justify-content: space-between; 
+    background-color: white;
+    margin-top: -15px;
+    padding-top: 15px;
+    border-radius: 0 0 13px 13px;
+    transition: .3s;
 }
 .item {
-    border-radius: 13px;
-    background-color: white;
-    width: 48%;
-    height: 100px;
+    height: 70px;
     position: relative;
     margin-top: 10px;
-    float: left;
-    margin-right: 4%;
+}
+.item::after {
+    content: '';
+    width: 90%;
+    height: 3px;
+    background-color: #222;
+    opacity: .1;
+    position: absolute;
+    bottom: 0;
+    left: 5%;
+}
+.item:last-of-type::after {
+    content: none;
 }
 .item:last-of-type {
     margin-right: 0;
@@ -231,6 +270,14 @@ body {
     margin: 0;
     margin-left: 15px;
     line-height: 2;
+}
+
+.item-type {
+    font-size: 15px;
+    margin: 0;
+    margin-left: 15px;
+    opacity: .5;
+    line-height: 0.5;
 }
 
 #menu {
@@ -465,4 +512,17 @@ body {
     100% {
       opacity: 0.8;
     }
+  }
+  @keyframes shake {
+    0% { transform: translate(0.1px, 0.1px) rotate(0deg); }
+    10% { transform: translate(-0.1px, -0.2px) rotate(-1deg); }
+    20% { transform: translate(-0.3px, 0px) rotate(1deg); }
+    30% { transform: translate(0.3px, 0.2px) rotate(0deg); }
+    40% { transform: translate(0.1px, -0.1px) rotate(1deg); }
+    50% { transform: translate(-0.1px, 0.2px) rotate(-1deg); }
+    60% { transform: translate(-0.3px, 0.1px) rotate(0deg); }
+    70% { transform: translate(0.3px, 0.1px) rotate(-1deg); }
+    80% { transform: translate(-0.1px, -0.1px) rotate(1deg); }
+    90% { transform: translate(0.1px, 0.2px) rotate(0deg); }
+    100% { transform: translate(0.1px, 0.1px) rotate(0deg); }
   }

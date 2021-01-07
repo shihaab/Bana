@@ -118,6 +118,10 @@ body {
     bottom: 50px;
     right: 10%;
 }
+.btn-small.loading {
+    opacity: .2;
+    animation: shake 1s infinite;
+}
 .circle-wrap {
     padding: 0;
     margin-top: 20px;
@@ -430,6 +434,9 @@ body {
     bottom: 2vw;
     position: fixed;
     z-index: 2;
+}
+#menu .unavailable {
+    opacity: .1;
 }
 .icons-wrapper {
     padding: 20px 27px;

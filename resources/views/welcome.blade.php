@@ -1,20 +1,13 @@
 <?php
-header('Access-Control-Allow-Origin: *'); 
-//whether ip is from share internet
-if (!empty($_SERVER['HTTP_CLIENT_IP']))   
-  {
-    $ip_address = $_SERVER['HTTP_CLIENT_IP'];
-  }
-//whether ip is from proxy
-elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR']))  
-  {
-    $ip_address = $_SERVER['HTTP_X_FORWARDED_FOR'];
-  }
-//whether ip is from remote address
-else
-  {
-    $ip_address = $_SERVER['REMOTE_ADDR'];
-  }
+    header('Access-Control-Allow-Origin: *'); 
+    //whether ip is from share internet
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $ip_address = $_SERVER['HTTP_CLIENT_IP'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { //whether ip is from proxy
+        $ip_address = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    } else { //whether ip is from remote address
+        $ip_address = $_SERVER['REMOTE_ADDR'];
+    }
 ?>
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -46,6 +39,64 @@ else
         <link rel="stylesheet" href="{{ mix('css/app.css') }}">
     </head>
     <body ontouchstart="" class="antialiased">
+        @if (!isset($_COOKIE['household']))
+        <div id="welcome1" class="">
+            <h1 class="welcome-title">Hi, welcome to Bana</h1>
+            <img id="img-lamp" src="img/hand_lamp_on-min.png">
+            <img id="img-phone" src="img/hand_phone_bana-min.png">
+            <p class="welcome-text">Bana is an application to bring all the devices in your home together in one neat and organized interface</p>
+            <button onclick="step1()" class="btn-big">Lets start</button>
+        </div>
+        <div id="welcome2" class="hidden">
+            <h1 class="welcome-title">Your household key</h1>
+            <input id="key" class="welcome-key" maxlength="7" placeholder="AK-1249" inputmode="text" autocomplete="off">
+            <p class="welcome-text up">To enter your household you need the key, this can be found in the settings</p>
+            <button onclick="step2()" class="btn-small">Next</button>
+            <ul class="circle-wrap">
+                <li><div class="circle active"></div></li>
+                <li><div class="circle"></div></li>
+            </ul>
+        </div>
+        <div id="welcome3" class="hidden">
+            <h1 class="welcome-title">You're all set up</h1>
+            <img id="img-thumbsup" src="img/hand_thumbsup-min.png">
+            <p class="welcome-text white">You are now a member of the <span id="householdname" class="household-name">%HOUSEHOLD_NAME%</span> household!</p>
+            <button onclick="step3()" class="btn-small">Done</button>
+            <ul class="circle-wrap">
+                <li><div class="circle"></div></li>
+                <li><div class="circle active"></div></li>
+            </ul>
+        </div>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script>
+            var w1 = document.getElementById('welcome1');
+            var w2 = document.getElementById('welcome2');
+            var w3 = document.getElementById('welcome3');
+            
+            function step1() {
+                w1.classList.add("hidden");
+                w2.classList.remove("hidden");
+            }
+            function step2() {
+                let key = document.getElementById('key').value;
+                axios.get('api/createmember/'+key, {})
+                .then(res => { 
+                    document.getElementById('householdname').textContent = res.data;
+
+                    document.cookie = "household="+key+"; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+                    // only when succes
+                    w2.classList.add("hidden");
+                    w3.classList.remove("hidden");
+                }).catch(error => {
+                    console.log('error', error);
+                    // TODO: needs to be an error message on the screen of the user
+                })
+            }
+            function step3() {
+                location.reload();
+            }
+        </script>
+        @elseif (isset($_COOKIE['household']))
         <div id="head">
             <h1 onclick="getStatuses()" class="title">Home <span style="color:white;font-family:monospace;font-size:10px;"><?php echo $ip_address; ?></span></h1>
             <div class="options"><span id="openOverlay" class="options-click"></span><svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"viewBox="0 0 32.055 32.055" xml:space="preserve"><g><path d="M3.968,12.061C1.775,12.061,0,13.835,0,16.027c0,2.192,1.773,3.967,3.968,3.967c2.189,0,3.966-1.772,3.966-3.967C7.934,13.835,6.157,12.061,3.968,12.061z M16.233,12.061c-2.188,0-3.968,1.773-3.968,3.965c0,2.192,1.778,3.967,3.968,3.967s3.97-1.772,3.97-3.967C20.201,13.835,18.423,12.061,16.233,12.061z M28.09,12.061c-2.192,0-3.969,1.774-3.969,3.967c0,2.19,1.774,3.965,3.969,3.965c2.188,0,3.965-1.772,3.965-3.965S30.278,12.061,28.09,12.061z"/></g></svg></div>
@@ -189,7 +240,8 @@ else
             function getStatuses() {
                 var qStatus = [];
                 var roomId = [];
-                axiosCall("api/rooms").then(function(result) {
+
+                axiosCall("api/rooms/"+getCookie('household')).then(function(result) {
                     Object.keys(result).forEach(function (key) { //foreach room
                         // key = key
                         // value = result[key]
@@ -286,7 +338,7 @@ else
                     content_rooms.removeChild(content_rooms.lastChild);
                 }
                 // get all the rooms and add them to the DOM
-                axiosCall("api/rooms").then(function(result) {
+                axiosCall("api/rooms/"+getCookie('household')).then(function(result) {
                     if(result.length > 0) { //if there are any rooms
                         createCat('rooms');
                     }
@@ -565,6 +617,32 @@ else
                     document.body.removeChild(notification);
                 }, 3000);
             }
+            function getCookie(cname) {
+                var name = cname + "=";
+                var decodedCookie = decodeURIComponent(document.cookie);
+                var ca = decodedCookie.split(';');
+                for(var i = 0; i <ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return "";
+            }
+            function logout() {
+                document.cookie = "household=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                axios.get('api/logout', {})
+                .then(res => { 
+                    location.reload();
+                }).catch(error => {
+                    console.log('error', error);
+                })
+                
+            }
         </script>
+        @endif
     </body>
 </html>

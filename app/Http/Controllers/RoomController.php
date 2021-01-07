@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\DB;
 class RoomController extends Controller
 {
     // Alle teams ophalen
-    public function GetAll() {
-        return DB::table('rooms')->get();
+    public function GetAll($key) {
+        return DB::table('rooms')->where('household_key', $key)->get();
     }
 
     public function GetItemsById($id) {

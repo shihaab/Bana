@@ -10,6 +10,147 @@ body {
     background-color: #1F1F1F;
     font-family: Nunito;
 }
+* {
+    outline: none;
+}
+#welcome1,#welcome2,#welcome3 {
+    text-align: center;
+    transition: .4s;
+    filter: blur(0);
+    height: 100vh;
+    width: 100vw;
+    position: absolute;
+}
+#welcome1.hidden,#welcome2.hidden,#welcome3.hidden {
+    opacity: 0;
+    filter: blur(100px);
+    pointer-events: none;
+}
+#img-lamp {
+    width: 200px;
+    height: auto;
+    float: left;
+}
+#img-phone {
+    width: 284px;
+    height: auto;
+    float: right;
+}
+#img-thumbsup {
+    width: 50vh;
+    height: auto;
+    position: absolute;
+    left: -10vh;
+    top: 20vh;
+    animation: thumbs 13s infinite ease;
+    transform-origin: center left;
+}
+.welcome-title {
+    color: white;
+    font-size: 30px;
+}
+.welcome-text {
+    color: white;
+    opacity: .8;
+    font-size: 13px;
+    width: 60%;
+    left: 20%;
+    position: absolute;
+    bottom: 120px;
+    font-weight: 500;
+}
+.welcome-text.white {
+    opacity: 1;
+}
+.welcome-text.up {
+    bottom: auto;
+}
+.household-name {
+    color: #9C88FF;
+    font-weight: 900;
+}
+.welcome-key {
+    color: white;
+    width: 65%;
+    height: 65px;
+    border: 1px solid rgba(0, 0, 0, .2);
+    border-radius: 31px;
+    font-weight: 900;
+    font-family: Nunito;
+    font-size: 55px;
+    background-color: #1F1F1F;
+    padding: 15px 10px;
+    text-align: center;
+    text-transform: uppercase;
+}
+.btn-big {
+    margin-top: 20px;
+    background-color: #9C88FF;
+    color: white;
+    width: 65%;
+    height: 55px;
+    border-radius: 31px;
+    font-weight: 900;
+    font-family: Nunito;
+    font-size: 20px;
+    border: none;
+    transition: .3s;
+    position: absolute;
+    bottom: 50px;
+    left: 17.5%;
+}
+.btn-big:hover {
+    opacity: .6;
+}
+.btn-small {
+    margin-top: 20px;
+    background-color: #9C88FF;
+    color: white;
+    width: 90px;
+    height: 35px;
+    border-radius: 31px;
+    font-weight: 900;
+    font-family: Nunito;
+    font-size: 20px;
+    border: none;
+    transition: .3s;
+    position: absolute;
+    bottom: 50px;
+    right: 10%;
+}
+.circle-wrap {
+    padding: 0;
+    margin-top: 20px;
+    width: 65%;
+    height: 11px;
+    position: absolute;
+    bottom: 50px;
+    left: 17.5%;
+    list-style: none;
+    display: flex;
+    justify-content: center; 
+}
+.circle-wrap li {
+    margin: 0 10px;
+}
+.circle {
+    width: 11px;
+    height: 11px;
+    background-color: white;
+    opacity: .2;
+    border-radius: 100%;
+}
+.circle.active {
+    background-color: #9C88FF;
+    opacity: 1;
+}
+@keyframes thumbs {
+    0% { transform: translate(0, 0) rotate(3deg); }
+   
+    50% { transform: translate(-0.1px, 2px) rotate(-4deg); }
+    
+    100% { transform: translate(0, 0) rotate(3deg); }
+  }
 
 #head {
     background-color: #1F1F1F;

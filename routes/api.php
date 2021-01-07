@@ -18,9 +18,12 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/rooms', 'App\Http\Controllers\RoomController@GetAll');
+Route::get('/rooms/{key}', 'App\Http\Controllers\RoomController@GetAll');
 
 Route::get('/getroomitemsbyid/{id}', 'App\Http\Controllers\RoomController@GetItemsById');
 
 Route::get('/createroom/{name}', 'App\Http\Controllers\RoomController@CreateRoom');
 Route::get('/deleteroom/{id}', 'App\Http\Controllers\RoomController@DeleteRoom');
+
+Route::get('/createmember/{key}', 'App\Http\Controllers\HouseholdController@CreateMember');
+Route::get('/logout', 'App\Http\Controllers\HouseholdController@Logout');

@@ -277,7 +277,10 @@
                                             });
                                         }
                                     }).catch(error => {
-                                        notify(error);
+                                        if (!error.status) { // if network error
+                                            notify('Module niet bereikbaar!')
+                                        }
+                                        // notify(error);
                                         console.log('error', error);
                                     });
                                 });

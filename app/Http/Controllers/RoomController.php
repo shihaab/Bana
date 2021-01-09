@@ -19,6 +19,9 @@ class RoomController extends Controller
     public function CreateRoom($name) {
         DB::table('rooms')->insert([
             'name' => $name,
+            'household_key' => $_COOKIE['household'],
+            'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
+            'updated_at' => \Carbon\Carbon::now()->toDateTimeString(),
         ]);
         return 'success';
     }

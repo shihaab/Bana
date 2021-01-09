@@ -17,7 +17,6 @@ class HouseholdController extends Controller
         } else { //whether ip is from remote address
             $ip_address = $_SERVER['REMOTE_ADDR'];
         }
-
         //set the cookie and make it last for 
         setcookie(
             "household",
@@ -29,6 +28,7 @@ class HouseholdController extends Controller
             'user_agent' => $_SERVER['HTTP_USER_AGENT'],
             'browser_language' => $_SERVER["HTTP_ACCEPT_LANGUAGE"],
             'ip' => $ip_address,
+            'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
         ]);
         return $household->name;
     }

@@ -7,6 +7,14 @@ use Illuminate\Support\Facades\DB;
 
 class HouseholdController extends Controller
 {
+    // Create a new member inside a household
+    // Returns	The household name
+    // Produces	Inserts the new member in the database
+    // Path parameters
+    //      KEY	
+    //      Required: true
+	//      Type: varchar
+	//      Description: The keycode of the household
     public function CreateMember($key) {
         $household = DB::table('households')->where('keycode', (string) $key)->first(); // as object
         //whether ip is from share internet
@@ -33,6 +41,9 @@ class HouseholdController extends Controller
         return $household->name;
     }
 
+    // Logout the user 
+    // Returns	Boolean, true if the cookie was successfully deleted
+    // Produces	Deleting the household cookie
     public function Logout() {
         if (isset($_COOKIE['household'])) {
             unset($_COOKIE['household']); 

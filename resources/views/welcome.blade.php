@@ -399,7 +399,7 @@
                     if(deleteEl(document.getElementById(id))) {
                         createAddRoom(document.getElementById('room-'+id));
                     }
-                    document.getElementById('room-'+id).setAttribute("style", "pointer-events:none;");
+                    document.getElementById('room-'+id).firstChild.setAttribute("style", "pointer-events:none;");
                 }
                 
             }

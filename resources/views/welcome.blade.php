@@ -138,32 +138,15 @@
             var overlay = document.getElementById('backgroundOverlay');
             var openButton = document.getElementById('openOverlay');
             document.onclick = function(e){
-                if(e.target.id == 'backgroundOverlay'){
+                if(e.target.id == 'backgroundOverlay') {
                     popup.style.display = 'none';
                     overlay.style.display = 'none';
                 }
-                if(e.target == openButton){
+                if(e.target == openButton) {
                     popup.style.display = 'block';
                     overlay.style.display = 'block';
                 }
             };
-
-            // handle for the accordion for all the room items
-            var room_items = document.getElementsByClassName("room-panel");
-            var i;
-            for (i = 0; i < room_items.length; i++) {
-                room_items[i].addEventListener("click", function() {
-                    this.classList.toggle("active");
-                    var panel = this.parentElement.nextElementSibling;
-                    if (panel.style.maxHeight) {
-                        panel.style.maxHeight = null;
-                        panel.style.paddingTop = '0';
-                    } else {
-                        panel.style.maxHeight = panel.scrollHeight + "px";
-                        panel.style.paddingTop = "15px";
-                    }
-                });
-            }
 
             function doSwitchRoom(id) {
                 let thisBtn = document.getElementById(id);
@@ -243,7 +226,6 @@
             function getStatuses() {
                 var qStatus = [];
                 var roomId = [];
-
                 axiosCall("api/rooms/"+getCookie('household')).then(function(result) {
                     Object.keys(result).forEach(function (key) { //foreach room
                         // key = key
@@ -278,7 +260,7 @@
                                         }
                                     }).catch(error => {
                                         if (!error.status) { // if network error
-                                            notify('Module niet bereikbaar!')
+                                            notify(callout_id+' niet bereikbaar!')
                                         }
                                         // notify(error);
                                         console.log('error', error);
@@ -372,10 +354,13 @@
                         acc[i].addEventListener("click", function() {
                             this.classList.toggle("active");
                             var panel = this.parentElement.nextElementSibling;
+                            var options_item = this.parentElement.getElementsByClassName('options-item');
                             if (panel.style.maxHeight) {
                                 panel.style.maxHeight = null;
+                                options_item[0].classList.add('hide');
                             } else {
                                 panel.style.maxHeight = panel.scrollHeight + "px";
+                                options_item[0].classList.remove('hide');
                             }
                         });
                     }
@@ -414,6 +399,7 @@
                     if(deleteEl(document.getElementById(id))) {
                         createAddRoom(document.getElementById('room-'+id));
                     }
+                    document.getElementById('room-'+id).setAttribute("style", "pointer-events:none;");
                 }
                 
             }
@@ -444,8 +430,9 @@
 
             function createRoom(name, id) {
                 let content_rooms = document.getElementById('content-rooms');
-                //let f = "handleOption('addItem', 'this')";
+                let f = "handleOption('addItem', this)";
                 //let options = '<div onclick='+f+' class="options-item"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 32.055 32.055" xml:space="preserve"><g><path d="M3.968,12.061C1.775,12.061,0,13.835,0,16.027c0,2.192,1.773,3.967,3.968,3.967c2.189,0,3.966-1.772,3.966-3.967C7.934,13.835,6.157,12.061,3.968,12.061z M16.233,12.061c-2.188,0-3.968,1.773-3.968,3.965c0,2.192,1.778,3.967,3.968,3.967s3.97-1.772,3.97-3.967C20.201,13.835,18.423,12.061,16.233,12.061z M28.09,12.061c-2.192,0-3.969,1.774-3.969,3.967c0,2.19,1.774,3.965,3.969,3.965c2.188,0,3.965-1.772,3.965-3.965S30.278,12.061,28.09,12.061z"></path></g></svg></div>'
+                let add_option = '<div onclick="'+f+'" class="options-item hide"><svg height="469.33333pt" viewBox="0 0 469.33333 469.33333" width="469.33333pt" xmlns="http://www.w3.org/2000/svg"><path d="m437.332031 192h-160v-160c0-17.664062-14.335937-32-32-32h-21.332031c-17.664062 0-32 14.335938-32 32v160h-160c-17.664062 0-32 14.335938-32 32v21.332031c0 17.664063 14.335938 32 32 32h160v160c0 17.664063 14.335938 32 32 32h21.332031c17.664063 0 32-14.335937 32-32v-160h160c17.664063 0 32-14.335937 32-32v-21.332031c0-17.664062-14.335937-32-32-32zm0 0"/></svg></div>';
                 let popup ='<div id="popup-'+id+'" class="popup hide"><span onclick="handleOption("addRoom")">Add room</span><br><hr><span onclick="handleOption("editRooms")">Edit</span></div>';
 
                 let room = document.createElement("div");
@@ -478,7 +465,7 @@
                 room.appendChild(room_title);
                 room.appendChild(room_status);
                 room.appendChild(room_btn);
-                // room.insertAdjacentHTML( 'beforeend', options );
+                room.insertAdjacentHTML( 'beforeend', add_option );
                 room.insertAdjacentHTML( 'beforeend', popup );
                 content_rooms.appendChild(room);
                 content_rooms.appendChild(room_items);
@@ -527,8 +514,8 @@
             }
             function createAddRoom(element) {
                 let f = "handleOption('addItem', this)";
-                let options = '<div onclick="'+f+'" class="options-item only"><svg height="469.33333pt" viewBox="0 0 469.33333 469.33333" width="469.33333pt" xmlns="http://www.w3.org/2000/svg"><path d="m437.332031 192h-160v-160c0-17.664062-14.335937-32-32-32h-21.332031c-17.664062 0-32 14.335938-32 32v160h-160c-17.664062 0-32 14.335938-32 32v21.332031c0 17.664063 14.335938 32 32 32h160v160c0 17.664063 14.335938 32 32 32h21.332031c17.664063 0 32-14.335937 32-32v-160h160c17.664063 0 32-14.335937 32-32v-21.332031c0-17.664062-14.335937-32-32-32zm0 0"/></svg></div>'
-                element.insertAdjacentHTML( 'beforeend', options );
+                let add_option = '<div onclick="'+f+'" class="options-item only"><svg height="469.33333pt" viewBox="0 0 469.33333 469.33333" width="469.33333pt" xmlns="http://www.w3.org/2000/svg"><path d="m437.332031 192h-160v-160c0-17.664062-14.335937-32-32-32h-21.332031c-17.664062 0-32 14.335938-32 32v160h-160c-17.664062 0-32 14.335938-32 32v21.332031c0 17.664063 14.335938 32 32 32h160v160c0 17.664063 14.335938 32 32 32h21.332031c17.664063 0 32-14.335937 32-32v-160h160c17.664063 0 32-14.335937 32-32v-21.332031c0-17.664062-14.335937-32-32-32zm0 0"/></svg></div>';
+                element.insertAdjacentHTML( 'beforeend', add_option );
             }
             function deleteEl(element) {
                 if(element){

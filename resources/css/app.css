@@ -197,9 +197,14 @@ body {
     top: 15px;
     text-align: center;
     z-index: 10;
+    transition: .2s ease;
 }
 .options-item.only {
     right: 15px;
+}
+.options-item.hide {
+    opacity: 0;
+    pointer-events: none;
 }
 .options-item svg {
     height: 17px;

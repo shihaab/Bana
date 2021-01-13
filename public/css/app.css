@@ -203,12 +203,17 @@ body {
     background-color: #9C88FF;
     position: absolute;
     right: 60px;
-    bottom: 17.5px;
+    top: 15px;
     text-align: center;
+    z-index: 10;
+}
+.options-item.only {
+    right: 15px;
 }
 .options-item svg {
-    height: 20px;
-    margin-top: 7.5px;
+    height: 17px;
+    width: 17px;
+    margin-top: 9.5px;
     fill: white;
 }
 #done-btn {
@@ -340,6 +345,7 @@ body {
     position: absolute;
     right: 15px;
     top: 15px;
+    z-index: 10;
 }
 .light-switch-item {
     border-radius: 100%;
@@ -386,8 +392,9 @@ body {
 .room-panel {
     position: absolute;
     background-color: transparent;
-    width: 80%;
-    height: 100px;
+    width: 100%;
+    height: 100%;
+    border-radius: 13px;
     z-index: 10;
 }
 .room-items {
@@ -481,7 +488,7 @@ body {
     bottom:0;
     display: none;
 }
-#popup{
+.popup {
     background-color: #9C88FF;
     width: auto;
     height: auto;
@@ -495,23 +502,38 @@ body {
     color: white;
     right: 83px;
     top: 42px;
-    display: none;
+    /* display: none; */
     font-size: 18px;
+    transition: .2s ease;
+    z-index: 9;
 }
-#popup hr {
+.popup.hide {
+    right: 60px;
+    top: 15px;
+    width: 0;
+    height: 0;
+    border-radius: 100%;
+    padding: 0;
+    z-index: 9;
+    color: #9C88FF;
+    opacity: 0;
+    transition: none;
+    pointer-events: none;
+}
+.popup hr {
     margin: 4px 0;
     opacity: .1;
     height: 1px;
     background-color: white;
     border-radius: 10px;
 }
-#popup span {
+.popup span {
     background-color: rgba(145, 145, 145, 0);
     border-radius: 13px;
     padding: 2px 5px;
     transition: .2s;
 }
-#popup span:hover {
+.popup span:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 .options-click {
@@ -566,6 +588,7 @@ body {
     border: none;
     padding: 3px 10px;
     margin-top: 5px;
+    margin-bottom: 15px;
     background-color:rgba(255, 255, 255, 0.1);
     display: block;
     font-size: 20px;

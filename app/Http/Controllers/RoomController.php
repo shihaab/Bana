@@ -59,4 +59,22 @@ class RoomController extends Controller
         DB::table('rooms')->where('id', $id)->delete();
         return 'success';
     }
+
+    public function CreateItem($type, $url, $callout_id, $name, $room_id) {
+        DB::table('room_items')->insert([
+            'name' => $name,
+            'type' => $type,
+            'url' => $url,
+            'callout_id' => $callout_id,
+            'room_id' => $room_id,
+            'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
+            'updated_at' => \Carbon\Carbon::now()->toDateTimeString(),
+        ]);
+        return 'succes';
+    }
+
+    public function DeleteItem($id) {
+        DB::table('room_items')->where('id', $id)->delete();
+        return 'success';
+    }
 }

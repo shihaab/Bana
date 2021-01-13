@@ -102,9 +102,9 @@
         @elseif (isset($_COOKIE['household']))
         <div id="head">
             <h1 onclick="getStatuses()" class="title">Home <span style="color:white;font-family:monospace;font-size:10px;"><?php echo $ip_address; ?></span></h1>
-            <div class="options"><span id="openOverlay" class="options-click"></span><svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"viewBox="0 0 32.055 32.055" xml:space="preserve"><g><path d="M3.968,12.061C1.775,12.061,0,13.835,0,16.027c0,2.192,1.773,3.967,3.968,3.967c2.189,0,3.966-1.772,3.966-3.967C7.934,13.835,6.157,12.061,3.968,12.061z M16.233,12.061c-2.188,0-3.968,1.773-3.968,3.965c0,2.192,1.778,3.967,3.968,3.967s3.97-1.772,3.97-3.967C20.201,13.835,18.423,12.061,16.233,12.061z M28.09,12.061c-2.192,0-3.969,1.774-3.969,3.967c0,2.19,1.774,3.965,3.969,3.965c2.188,0,3.965-1.772,3.965-3.965S30.278,12.061,28.09,12.061z"/></g></svg></div>
+            <div class="options" onclick="handleOption('openOptions','', 'a')"><span id="openOverlay" class="options-click"></span><svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"viewBox="0 0 32.055 32.055" xml:space="preserve"><g><path d="M3.968,12.061C1.775,12.061,0,13.835,0,16.027c0,2.192,1.773,3.967,3.968,3.967c2.189,0,3.966-1.772,3.966-3.967C7.934,13.835,6.157,12.061,3.968,12.061z M16.233,12.061c-2.188,0-3.968,1.773-3.968,3.965c0,2.192,1.778,3.967,3.968,3.967s3.97-1.772,3.97-3.967C20.201,13.835,18.423,12.061,16.233,12.061z M28.09,12.061c-2.192,0-3.969,1.774-3.969,3.967c0,2.19,1.774,3.965,3.969,3.965c2.188,0,3.965-1.772,3.965-3.965S30.278,12.061,28.09,12.061z"/></g></svg></div>
             <div id="done-btn" class="hide" onclick="handleOption('editRoomsDone')">done</div>
-            <div id="popup">
+            <div id="popup-a" class="popup hide">
                 <span onclick="handleOption('addRoom')">Add room</span><br>
                 <hr>
                 <span onclick="handleOption('editRooms')">Edit</span>
@@ -368,17 +368,16 @@
                 }).finally(() => {
                     var acc = document.getElementsByClassName("room-panel");
                     var i;
-
                     for (i = 0; i < acc.length; i++) {
-                    acc[i].addEventListener("click", function() {
-                    this.classList.toggle("active");
-                    var panel = this.parentElement.nextElementSibling;
-                    if (panel.style.maxHeight) {
-                    panel.style.maxHeight = null;
-                    } else {
-                    panel.style.maxHeight = panel.scrollHeight + "px";
-                    }
-                    });
+                        acc[i].addEventListener("click", function() {
+                            this.classList.toggle("active");
+                            var panel = this.parentElement.nextElementSibling;
+                            if (panel.style.maxHeight) {
+                                panel.style.maxHeight = null;
+                            } else {
+                                panel.style.maxHeight = panel.scrollHeight + "px";
+                            }
+                        });
                     }
                 });
             }
@@ -410,8 +409,11 @@
                 } else if(status == 'off') {
                     statusEl.textContent = "All lights are off";
                     statusBtnEl.classList.remove("active");
-                } else if(status == 'none') {
+                } else if(status == 'none') { // handle a empty room
                     statusEl.textContent = "There are no lights in this room";
+                    if(deleteEl(document.getElementById(id))) {
+                        createAddRoom(document.getElementById('room-'+id));
+                    }
                 }
                 
             }
@@ -442,6 +444,9 @@
 
             function createRoom(name, id) {
                 let content_rooms = document.getElementById('content-rooms');
+                //let f = "handleOption('addItem', 'this')";
+                //let options = '<div onclick='+f+' class="options-item"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 32.055 32.055" xml:space="preserve"><g><path d="M3.968,12.061C1.775,12.061,0,13.835,0,16.027c0,2.192,1.773,3.967,3.968,3.967c2.189,0,3.966-1.772,3.966-3.967C7.934,13.835,6.157,12.061,3.968,12.061z M16.233,12.061c-2.188,0-3.968,1.773-3.968,3.965c0,2.192,1.778,3.967,3.968,3.967s3.97-1.772,3.97-3.967C20.201,13.835,18.423,12.061,16.233,12.061z M28.09,12.061c-2.192,0-3.969,1.774-3.969,3.967c0,2.19,1.774,3.965,3.969,3.965c2.188,0,3.965-1.772,3.965-3.965S30.278,12.061,28.09,12.061z"></path></g></svg></div>'
+                let popup ='<div id="popup-'+id+'" class="popup hide"><span onclick="handleOption("addRoom")">Add room</span><br><hr><span onclick="handleOption("editRooms")">Edit</span></div>';
 
                 let room = document.createElement("div");
                 room.setAttribute('class', "room");
@@ -473,6 +478,8 @@
                 room.appendChild(room_title);
                 room.appendChild(room_status);
                 room.appendChild(room_btn);
+                // room.insertAdjacentHTML( 'beforeend', options );
+                room.insertAdjacentHTML( 'beforeend', popup );
                 content_rooms.appendChild(room);
                 content_rooms.appendChild(room_items);
 
@@ -480,7 +487,6 @@
             }
             function createItem(id, name, type, url, callout, roomId, roomElement) {
                 let room_items = document.getElementById('room-items-'+roomId);
-                let options = '<div class="options-item"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"viewBox="0 0 32.055 32.055" xml:space="preserve"><g><path d="M3.968,12.061C1.775,12.061,0,13.835,0,16.027c0,2.192,1.773,3.967,3.968,3.967c2.189,0,3.966-1.772,3.966-3.967C7.934,13.835,6.157,12.061,3.968,12.061z M16.233,12.061c-2.188,0-3.968,1.773-3.968,3.965c0,2.192,1.778,3.967,3.968,3.967s3.97-1.772,3.97-3.967C20.201,13.835,18.423,12.061,16.233,12.061z M28.09,12.061c-2.192,0-3.969,1.774-3.969,3.967c0,2.19,1.774,3.965,3.969,3.965c2.188,0,3.965-1.772,3.965-3.965S30.278,12.061,28.09,12.061z"/></g></svg></div>'
 
                 let item = document.createElement("div");
                 item.setAttribute('class', "item");
@@ -498,7 +504,6 @@
                 item.appendChild(item_title);
                 item.appendChild(item_type);
                 item.appendChild(item_btn);
-                item.insertAdjacentHTML( 'beforeend', options );
                 room_items.appendChild(item);
             }
 
@@ -520,30 +525,25 @@
                 div.appendChild(div_image);
                 element.appendChild(div);
             }
+            function createAddRoom(element) {
+                let f = "handleOption('addItem', this)";
+                let options = '<div onclick="'+f+'" class="options-item only"><svg height="469.33333pt" viewBox="0 0 469.33333 469.33333" width="469.33333pt" xmlns="http://www.w3.org/2000/svg"><path d="m437.332031 192h-160v-160c0-17.664062-14.335937-32-32-32h-21.332031c-17.664062 0-32 14.335938-32 32v160h-160c-17.664062 0-32 14.335938-32 32v21.332031c0 17.664063 14.335938 32 32 32h160v160c0 17.664063 14.335938 32 32 32h21.332031c17.664063 0 32-14.335937 32-32v-160h160c17.664063 0 32-14.335937 32-32v-21.332031c0-17.664062-14.335937-32-32-32zm0 0"/></svg></div>'
+                element.insertAdjacentHTML( 'beforeend', options );
+            }
+            function deleteEl(element) {
+                if(element){
+                    element.parentNode.removeChild(element);
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
 
-            function handleOption(type, origin) {
+            function handleOption(type, element, popup_id) {
                 switch(type) {
                     case 'addRoom':
-                        let form = document.createElement("div");
-                        form.setAttribute('class', "form");
-                        let label = document.createElement("label");
-                        label.textContent = "Room name";
-                        let input = document.createElement("input");
-                        input.setAttribute('id', "name");
-                        input.setAttribute('type', "text");
-                        input.setAttribute('focus', "text");
-                        input.setAttribute('placeholder', "Livingroom");
-                        let button1 = document.createElement("button");
-                        button1.textContent = "Cancel";
-                        button1.setAttribute('onclick', "closeForm(this)");
-                        let button2 = document.createElement("button");
-                        button2.setAttribute('onclick', "formSend(this)");
-                        button2.textContent = "Add";
-                        form.appendChild(label);
-                        form.appendChild(input);
-                        form.appendChild(button1);
-                        form.appendChild(button2);
-                        document.body.appendChild(form);
+                        createForm('room');
                         break;
                     case 'editRooms':
                         $: done_btn = document.getElementById('done-btn');
@@ -565,6 +565,30 @@
                             room_deletes[i].classList.add("hide");
                         }
                         break;
+                    case 'addItem':
+                        let id = element.parentNode.id.split('-')[1];
+                        createForm('item', id);
+                        break;
+                    case 'openOptions':
+                        if(popup_id !== undefined) {
+                            let popup = document.getElementById('popup-'+popup_id);
+                            var overlay = document.getElementById('backgroundOverlay');
+                            var openButton = document.getElementById('openOverlay');
+                            popup.classList.remove("hide");
+                            overlay.style.display = 'block';
+                            document.onclick = function(e){
+                                if(e.target.id == 'backgroundOverlay') {
+                                    popup.classList.add("hide");
+                                    overlay.style.display = 'none';
+                                }
+                            };
+                        }
+                        else {
+                            return "no id given";
+                        }
+                        break;
+                    case 'addItem':
+                        
                     default:
                         break;
                 }
@@ -584,21 +608,106 @@
             function removeFromScreen(element) {
                 element.remove();
             }
+            function createForm(type, data) {
+                let form = document.createElement("div");
+                let label1 = document.createElement("label");
+                let input1 = document.createElement("input");
+                let label2 = document.createElement("label");
+                let input2 = document.createElement("input");
+                let label3 = document.createElement("label");
+                let input3 = document.createElement("input");
+                let label4 = document.createElement("label");
+                let input4 = document.createElement("input");
+                
+                input1.setAttribute('type', "text");
+                input1.setAttribute('focus', "text");
+                input2.setAttribute('id', "name");
+                input2.setAttribute('type', "text");
+                input2.setAttribute('focus', "text");
+                input3.setAttribute('id', "name");
+                input3.setAttribute('type', "text");
+                input3.setAttribute('focus', "text");
+                input4.setAttribute('id', "name");
+                input4.setAttribute('type', "text");
+                input4.setAttribute('focus', "text");
+                let button1 = document.createElement("button");
+                let button2 = document.createElement("button");
+                switch (type) {
+                    case 'room':
+                        form.setAttribute('class', "form");
+                        label1.textContent = "Room name";
+                        input1.setAttribute('id', "name");
+                        input1.setAttribute('placeholder', "Livingroom");
+                        button1.textContent = "Cancel";
+                        button1.setAttribute('onclick', "closeForm(this)");
+                        button2.textContent = "Add";
+                        button2.setAttribute('onclick', "formSend(this, 'createroom')");
+                        form.appendChild(label1);
+                        form.appendChild(input1);
+                        form.appendChild(button1);
+                        form.appendChild(button2);
+                        document.body.appendChild(form);
+                        break;
+                    case 'item':
+                        form.setAttribute('class', "form");
+                        label1.textContent = "Item name";
+                        input1.setAttribute('id', "name");
+                        input1.setAttribute('placeholder', "Ceiling light");
+                        label2.textContent = "Item type";
+                        input2.setAttribute('id', "type");
+                        input2.setAttribute('placeholder', "LED");
+                        label3.textContent = "URL";
+                        input3.setAttribute('id', "url");
+                        input3.setAttribute('placeholder', "");
+                        label4.textContent = "Callout ID";
+                        input4.setAttribute('id', "callout-id");
+                        input4.setAttribute('placeholder', "LED_1");
+                        button1.textContent = "Cancel";
+                        button1.setAttribute('onclick', "closeForm(this)");
+                        button2.textContent = "Add";
+                        button2.setAttribute('onclick', "formSend(this, 'createitem', "+data+")");
+                        form.appendChild(label1);
+                        form.appendChild(input1);
+                        form.appendChild(label2);
+                        form.appendChild(input2);
+                        form.appendChild(label3);
+                        form.appendChild(input3);
+                        form.appendChild(label4);
+                        form.appendChild(input4);
+                        form.appendChild(button1);
+                        form.appendChild(button2);
+                        document.body.appendChild(form);
+                        break;
+                }
+            }
             function closeForm(element) {
                 element.parentNode.parentNode.removeChild(element.parentNode);
             }
-            function formSend(element) {
-                let form = element.parentElement;
-                let name = findSiblingWithId(element).value;
-                axiosCall('/api/createroom/'+name);
-                element.parentNode.parentNode.removeChild(element.parentNode);
-                fillScreen();
+            function formSend(element, type, room_id) {
+                if(type == 'createroom') {
+                    let form = element.parentElement;
+                    let name = findSiblingWithId(element,'name').value;
+                    axiosCall('/api/createroom/'+name);
+                    element.parentNode.parentNode.removeChild(element.parentNode);
+                    fillScreen();
+                }
+                else if(type == 'createitem') {
+                    let form = element.parentElement;
+                    let name = findSiblingWithId(element,'name').value;
+                    let type = findSiblingWithId(element,'type').value;
+                    let url = findSiblingWithId(element,'url').value;
+                    let callout_id = findSiblingWithId(element,'callout-id').value;
+                    axiosCall('/api/createitem/'+type+'/'+url+'/'+callout_id+'/'+name+'/'+room_id);
+                    element.parentNode.parentNode.removeChild(element.parentNode);
+                    fillScreen();
+                }
+                
             }
-            function findSiblingWithId(element) {
+            function findSiblingWithId(element, el_id) {
                 var siblings = element.parentNode.children,
-                sibWithId = 'name';
+                sibWithId = null;
                 for(var i = siblings.length; i--;) {
-                    if(siblings[i].id) {
+                    if(siblings[i].id == el_id) {
                         sibWithId = siblings[i];
                         break;
                     }
@@ -621,7 +730,7 @@
 
                 setTimeout(function () {
                     document.body.removeChild(notification);
-                }, 3000);
+                }, 4000);
             }
             function getCookie(cname) {
                 var name = cname + "=";

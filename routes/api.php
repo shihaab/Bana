@@ -25,5 +25,8 @@ Route::get('/getroomitemsbyid/{id}', 'App\Http\Controllers\RoomController@GetIte
 Route::get('/createroom/{name}', 'App\Http\Controllers\RoomController@CreateRoom');
 Route::get('/deleteroom/{id}', 'App\Http\Controllers\RoomController@DeleteRoom');
 
+Route::get('/createitem/{type}/{url}/{callout_id}/{name}/{room_id}', 'App\Http\Controllers\RoomController@CreateItem');
+Route::get('/deleteitem/{id}', 'App\Http\Controllers\RoomController@DeleteItem');
+
 Route::get('/createmember/{key}', 'App\Http\Controllers\HouseholdController@CreateMember');
 Route::get('/logout', 'App\Http\Controllers\HouseholdController@Logout');

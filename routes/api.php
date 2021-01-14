@@ -30,3 +30,5 @@ Route::get('/deleteitem/{id}', 'App\Http\Controllers\RoomController@DeleteItem')
 
 Route::get('/createmember/{key}', 'App\Http\Controllers\HouseholdController@CreateMember');
 Route::get('/logout', 'App\Http\Controllers\HouseholdController@Logout');
+
+Route::get('/ring/{key}', 'App\Http\Controllers\HouseholdController@Ring');

@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+use phpDocumentor\Reflection\Types\Boolean;
 
 class HouseholdController extends Controller
 {
@@ -52,5 +55,55 @@ class HouseholdController extends Controller
         } else {
             return false;
         }
+    }
+
+    public function ring($key) {
+        $urls = array();
+        
+        $rooms = DB::table('rooms')->where('household_key', $key)->get();
+        foreach ($rooms as $room) {
+            $items = DB::table('room_items')->where('room_id', $room->id)->get();
+            foreach ($items as $item) {
+                array_push($urls, $item->url.'/'.$item->callout_id);
+            }
+        }
+        return $this->Flash($urls,10,1);        
+    }
+    public function GetRequest($url) {
+        $headers = ['headers' => ['accept' => "application/json"]];
+        try {
+            $client = new Client();
+            $response =  $client->request('GET', $url, $headers);
+            $response = json_decode($response->getBody(), true);
+            if(!$response == null) {  $status = $response;}
+            else{ $status = "API Error";}
+        }catch (ClientException $e){
+            $status = "API Error";
+        }
+        return $status;
+    }
+    public function Flash($urls,$x, $startAt) {
+        $data = array();
+        if($startAt == 1) {
+            $boolean = true;
+        }
+        else {
+            $boolean = false;
+        }
+        for ($i = 0; $i <= $x; $i++) {
+            if($boolean){
+                $newstate = '1';
+            }
+            else {
+                $newstate = '0';
+            }
+            $boolean = !$boolean;
+            foreach ($urls as $url) {
+                $r = $this->GetRequest($url.'?v='.$newstate);
+                array_push($data, $r);
+            }
+            usleep(250000); // wait one quater of a second
+        }
+        return $data;
     }
 }

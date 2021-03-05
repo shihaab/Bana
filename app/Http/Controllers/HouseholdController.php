@@ -19,29 +19,32 @@ class HouseholdController extends Controller
 	//      Type: varchar
 	//      Description: The keycode of the household
     public function CreateMember($key) {
-        $household = DB::table('households')->where('keycode', (string) $key)->first(); // as object
-        //whether ip is from share internet
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            $ip_address = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { //whether ip is from proxy
-            $ip_address = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } else { //whether ip is from remote address
-            $ip_address = $_SERVER['REMOTE_ADDR'];
+        if($household = DB::table('households')->where('keycode', (string) $key)->first()){ // if the key exists
+            //whether ip is from share internet
+            if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+                $ip_address = $_SERVER['HTTP_CLIENT_IP'];
+            } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { //whether ip is from proxy
+                $ip_address = $_SERVER['HTTP_X_FORWARDED_FOR'];
+            } else { //whether ip is from remote address
+                $ip_address = $_SERVER['REMOTE_ADDR'];
+            }
+            //set the cookie and make it last for 
+            setcookie(
+                "household",
+                $household->keycode,
+                time() + (10 * 365 * 24 * 60 * 60) // 10 year
+            );
+            DB::table('household_members')->insert([
+                'household_id' => $household->id,
+                'user_agent' => $_SERVER['HTTP_USER_AGENT'],
+                'browser_language' => $_SERVER["HTTP_ACCEPT_LANGUAGE"],
+                'ip' => $ip_address,
+                'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
+            ]);
+            return $household->name;
         }
-        //set the cookie and make it last for 
-        setcookie(
-            "household",
-            $household->keycode,
-            time() + (10 * 365 * 24 * 60 * 60) // 10 year
-        );
-        DB::table('household_members')->insert([
-            'household_id' => $household->id,
-            'user_agent' => $_SERVER['HTTP_USER_AGENT'],
-            'browser_language' => $_SERVER["HTTP_ACCEPT_LANGUAGE"],
-            'ip' => $ip_address,
-            'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
-        ]);
-        return $household->name;
+        else {return 404;} // when key doesnt exist
+        
     }
 
     // Logout the user 

@@ -42,7 +42,8 @@
         @if (!isset($_COOKIE['household']))
         <div id="welcome1" class="">
             <h1 class="welcome-title">Hi, welcome to Bana</h1>
-            <img id="img-lamp" src="img/hand_lamp_on-min.png">
+            <img id="img-lamp-on" src="img/hand_lamp_on-min.png">
+            <img id="img-lamp" src="img/hand_lamp-min.png">
             <img id="img-phone" src="img/hand_phone_bana-min.png">
             <p class="welcome-text">Bana is an application to bring all the devices in your home together in one neat and organized interface</p>
             <button onclick="step1()" class="btn-big">Lets start</button>
@@ -50,7 +51,7 @@
         <div id="welcome2" class="hidden">
             <h1 class="welcome-title">Your household key</h1>
             <input id="key" class="welcome-key" maxlength="7" placeholder="AK-1249" inputmode="text" autocomplete="off">
-            <p class="welcome-text up">To enter your household you need the key, this can be found in the settings</p>
+            <p class="welcome-text up"><span id="err"></span><br>To enter your household you need the key, this can be found in the settings</p>
             <button id="step2-btn" onclick="step2()" class="btn-small">Next</button>
             <ul class="circle-wrap">
                 <li><div class="circle active"></div></li>
@@ -80,41 +81,107 @@
             function step2() {
                 let key = document.getElementById('key').value;
                 let button = document.getElementById('step2-btn');
-                button.classList.add('loading');
-                axios.get('api/createmember/'+key, {})
-                .then(res => { 
-                    document.getElementById('householdname').textContent = res.data;
+                if(key != '' && key != ' ' && key != '  ' ) {
+                    button.classList.add('loading');
+                    axios.get('api/createmember/'+key, {})
+                    .then(res => {
+                        if(res.data != 404) {
+                            document.getElementById('householdname').textContent = res.data;
 
-                    document.cookie = "household="+key+"; expires=Fri, 31 Dec 9999 23:59:59 GMT";
-                    // only when succes
-                    button.classList.remove('loading');
-                    w2.classList.add("hidden");
-                    w3.classList.remove("hidden");
-                }).catch(error => {
-                    console.log('error', error);
-                    // TODO: needs to be an error message on the screen of the user
-                })
+                            document.cookie = "household="+key+"; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+                            // only when succes
+                            button.classList.remove('loading');
+                            w2.classList.add("hidden");
+                            w3.classList.remove("hidden");
+                        }
+                        else {
+                            document.getElementById('err').textContent = 'This key does not exist, please enter a valid key';
+                            button.classList.remove('loading');
+                            console.log('key doesnt exist');
+                        }
+                        
+                    }).catch(error => {
+                        console.log('error', error);
+                        // TODO: needs to be an error message on the screen of the user
+                    })
+                }
+                else {
+                    document.getElementById('err').textContent = 'Please enter a key';
+                    setInterval(function(){ document.getElementById('key').focus() }, 800);
+                }
             }
             function step3() {
                 location.reload();
             }
+            function notify(text) {
+                let notification = document.createElement("div");
+                notification.setAttribute('class', "notification");
+                let notification_text = document.createElement("div");
+                notification_text.setAttribute('class', "notification-text");
+                notification_text.textContent = text;
+
+                notification.appendChild(notification_text);
+                document.body.appendChild(notification);
+
+                setTimeout(function () {
+                    document.body.removeChild(notification);
+                }, 4000);
+            }
         </script>
         @elseif (isset($_COOKIE['household']))
-        <div id="head">
-            <h1 onclick="getStatuses()" class="title">Home <span style="color:white;font-family:monospace;font-size:10px;"><?php echo $ip_address; ?></span></h1>
-            <div class="options" onclick="handleOption('openOptions','', 'a')"><span id="openOverlay" class="options-click"></span><svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"viewBox="0 0 32.055 32.055" xml:space="preserve"><g><path d="M3.968,12.061C1.775,12.061,0,13.835,0,16.027c0,2.192,1.773,3.967,3.968,3.967c2.189,0,3.966-1.772,3.966-3.967C7.934,13.835,6.157,12.061,3.968,12.061z M16.233,12.061c-2.188,0-3.968,1.773-3.968,3.965c0,2.192,1.778,3.967,3.968,3.967s3.97-1.772,3.97-3.967C20.201,13.835,18.423,12.061,16.233,12.061z M28.09,12.061c-2.192,0-3.969,1.774-3.969,3.967c0,2.19,1.774,3.965,3.969,3.965c2.188,0,3.965-1.772,3.965-3.965S30.278,12.061,28.09,12.061z"/></g></svg></div>
-            <div id="done-btn" class="hide" onclick="handleOption('editRoomsDone')">done</div>
-            <div id="popup-a" class="popup hide">
-                <span onclick="handleOption('addRoom')">Add room</span><br>
-                <hr>
-                <span onclick="handleOption('editRooms')">Edit</span>
+        <div id="app">
+            <div id="home">
+                <div class="head">
+                    <h1 onclick="getStatuses()" class="title">Home <span style="color:white;font-family:monospace;font-size:10px;"><?php echo $ip_address; ?></span></h1>
+                    <div class="options" onclick="handleOption('openOptions','', 'a')"><span id="openOverlay" class="options-click"></span><svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"viewBox="0 0 32.055 32.055" xml:space="preserve"><g><path d="M3.968,12.061C1.775,12.061,0,13.835,0,16.027c0,2.192,1.773,3.967,3.968,3.967c2.189,0,3.966-1.772,3.966-3.967C7.934,13.835,6.157,12.061,3.968,12.061z M16.233,12.061c-2.188,0-3.968,1.773-3.968,3.965c0,2.192,1.778,3.967,3.968,3.967s3.97-1.772,3.97-3.967C20.201,13.835,18.423,12.061,16.233,12.061z M28.09,12.061c-2.192,0-3.969,1.774-3.969,3.967c0,2.19,1.774,3.965,3.969,3.965c2.188,0,3.965-1.772,3.965-3.965S30.278,12.061,28.09,12.061z"/></g></svg></div>
+                    <div id="done-btn" class="hide" onclick="handleOption('editRoomsDone')">done</div>
+                    <div id="popup-a" class="popup hide">
+                        <span onclick="handleOption('addRoom')">Add room</span><br>
+                        <hr>
+                        <span onclick="handleOption('editRooms')">Edit</span>
+                    </div>
+                    <div id="backgroundOverlay"></div>
+                </div>
+                <div class="content">
+                    <div id="content-rooms"></div>
+                </div>
             </div>
-            <div id="backgroundOverlay"></div>
+
+            <div id="floorplan">
+                <div class="head">
+                    <h1 onclick="getStatuses()" class="title">Floorplan</h1>
+                    <div class="options" onclick="handleOption('openOptions','', 'a')"><span id="openOverlay" class="options-click"></span><svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"viewBox="0 0 32.055 32.055" xml:space="preserve"><g><path d="M3.968,12.061C1.775,12.061,0,13.835,0,16.027c0,2.192,1.773,3.967,3.968,3.967c2.189,0,3.966-1.772,3.966-3.967C7.934,13.835,6.157,12.061,3.968,12.061z M16.233,12.061c-2.188,0-3.968,1.773-3.968,3.965c0,2.192,1.778,3.967,3.968,3.967s3.97-1.772,3.97-3.967C20.201,13.835,18.423,12.061,16.233,12.061z M28.09,12.061c-2.192,0-3.969,1.774-3.969,3.967c0,2.19,1.774,3.965,3.969,3.965c2.188,0,3.965-1.772,3.965-3.965S30.278,12.061,28.09,12.061z"/></g></svg></div>
+                    <div id="done-btn" class="hide" onclick="handleOption('editRoomsDone')">done</div>
+                    <div id="popup-a" class="popup hide">
+                        <span onclick="handleOption('addRoom')">Add room</span><br>
+                        <hr>
+                        <span onclick="handleOption('editRooms')">Edit</span>
+                    </div>
+                    <div id="backgroundOverlay"></div>
+                </div>
+                <div class="content">
+                    <h2>floorplan</h2>
+                </div>
+            </div>
+
+            <div id="discover">
+                <div class="head">
+                    <h1 onclick="getStatuses()" class="title">discover</h1>
+                    <div class="options" onclick="handleOption('openOptions','', 'a')"><span id="openOverlay" class="options-click"></span><svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"viewBox="0 0 32.055 32.055" xml:space="preserve"><g><path d="M3.968,12.061C1.775,12.061,0,13.835,0,16.027c0,2.192,1.773,3.967,3.968,3.967c2.189,0,3.966-1.772,3.966-3.967C7.934,13.835,6.157,12.061,3.968,12.061z M16.233,12.061c-2.188,0-3.968,1.773-3.968,3.965c0,2.192,1.778,3.967,3.968,3.967s3.97-1.772,3.97-3.967C20.201,13.835,18.423,12.061,16.233,12.061z M28.09,12.061c-2.192,0-3.969,1.774-3.969,3.967c0,2.19,1.774,3.965,3.969,3.965c2.188,0,3.965-1.772,3.965-3.965S30.278,12.061,28.09,12.061z"/></g></svg></div>
+                    <div id="done-btn" class="hide" onclick="handleOption('editRoomsDone')">done</div>
+                    <div id="popup-a" class="popup hide">
+                        <span onclick="handleOption('addRoom')">Add room</span><br>
+                        <hr>
+                        <span onclick="handleOption('editRooms')">Edit</span>
+                    </div>
+                    <div id="backgroundOverlay"></div>
+                </div>
+                <div class="content">
+                    <h2>discover</h2>
+                </div>
+            </div>
         </div>
-        <div id="content">
-            <div id="content-rooms"></div>
-        </div>
-        <div id="app"></div>
+
         <div id="menu">
             <ul class="icons-wrapper space-between">
                 <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></li>
@@ -367,6 +434,38 @@
                 });
             }
 
+            function switchRoomPanel(newState) {
+                var acc = document.getElementsByClassName("room-panel");
+                if(newState == 'hide') {
+                    var i;
+                    for (i = 0; i < acc.length; i++) {
+                        let t = acc[i];
+                        t.classList.remove("active");
+                        t.setAttribute("style", "pointer-events: none;");
+                        var panel = t.parentElement.nextElementSibling;
+                        var options_item = t.parentElement.getElementsByClassName('options-item');
+                        if (panel.style.maxHeight) {
+                            panel.style.maxHeight = null;
+                            options_item[0].classList.add('hide');
+                        }
+                    }
+                }
+                else if(newState == 'show') {
+                    var i;
+                    for (i = 0; i < acc.length; i++) {
+                        let t = acc[i];
+                        // t.classList.remove("active");
+                        t.setAttribute("style", "pointer-events: auto;");
+                        // var panel = t.parentElement.nextElementSibling;
+                        // var options_item = t.parentElement.getElementsByClassName('options-item');
+                        // if (!panel.style.maxHeight) {
+                        //     panel.style.maxHeight = panel.scrollHeight + "px";
+                        //     options_item[0].classList.remove('hide');
+                        // }
+                    }
+                }
+            }
+
             async function axiosCall(url) {
                 const response = await axios.get(url)
                 return response.data
@@ -537,6 +636,7 @@
                         $: rooms = document.getElementsByClassName('room');
                         $: room_items = document.getElementsByClassName('room-items');
                         $: room_deletes = document.getElementsByClassName('room-delete');
+                        switchRoomPanel('hide');
                         done_btn.classList.remove("hide");
                         for(var i = rooms.length; i--;) {
                             rooms[i].classList.add("edit");
@@ -545,6 +645,7 @@
                         }
                         break;
                     case 'editRoomsDone':
+                        switchRoomPanel('show');
                         done_btn.classList.add("hide");
                         for(var i = rooms.length; i--;) {
                             rooms[i].classList.remove("edit");
